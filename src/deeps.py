@@ -20,8 +20,11 @@ class Piece(object):
         self.square = None
 
     def __repr__(self):
-        return "{} {}".format("White" if self.color == self.C_WHITE else "Black",
-                              self.__class__.__name__)
+        color_names = {
+            self.C_BLACK: "black",
+            self.C_WHITE: "white"
+        }
+        return "{} {}".format(color_names[self.color], self.__class__.__name__)
 
 
 class King(Piece):
@@ -101,3 +104,5 @@ king = King(Piece.C_WHITE)
 print(king.moves, type(king.moves))
 knight = Knight(Piece.C_BLACK)
 print(knight.moves, type(knight.moves))
+
+print(king)
