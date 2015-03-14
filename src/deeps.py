@@ -12,6 +12,10 @@ class Piece(object):
     def __init__(self, color):
         self.color = color
         assert self.color in (self.C_WHITE, self.C_BLACK)
+        
+        self.moves = None
+        self.captures = None
+        self.move_extends = False
 
         self.square = None
 
@@ -23,8 +27,6 @@ class Piece(object):
 class King(Piece):
     def __init__(self, color):
         super().__init__(color)
-
-        self.multi_move = False
 
         self.moves = {
             (x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)
@@ -38,7 +40,7 @@ class Queen(Piece):
     def __init__(self, color):
         super().__init__(color)
 
-        self.multi_move = True
+        self.move_extends = True
 
         self.moves = {
             (x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)
@@ -49,11 +51,12 @@ class Rook(Piece):
     def __init__(self, color):
         super().__init__(color)
 
-        self.multi_move = True
+        self.move_extends = True
 
         self.moves = {
             (1, 0), (0, 1), (-1, 0), (0, -1)
         }
+
         #TODO: Implement castling
 
 
@@ -61,7 +64,7 @@ class Bishop(Piece):
     def __init__(self, color):
         super().__init__(color)
 
-        self.multi_move = True
+        self.move_extends = True
 
         self.moves = {
             (x, y) for x in (-1, 1) for y in (-1, 1)
@@ -71,8 +74,6 @@ class Bishop(Piece):
 class Knight(Piece):
     def __init__(self, color):
         super().__init__(color)
-
-        self.multi_move = False
 
         self.moves = {
             (x, y) for x in (-2, 2) for y in (-1, 1)
@@ -85,8 +86,6 @@ class Pawn(Piece):
     def __init__(self, color):
         super().__init__(color)
 
-        self.multi_move = False
-
         if color == Piece.C_WHITE:
             self.moves = {(0, 1)}
             self.captures = {(1, 1), (-1, 1)}
@@ -95,6 +94,7 @@ class Pawn(Piece):
             self.captures = {(1, -1), (-1, -1)}
 
         #TODO: Implement en passant
+        #TODO: Implement first move
 
 
 king = King(Piece.C_WHITE)
