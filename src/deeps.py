@@ -14,7 +14,7 @@ class Piece(object):
         assert self.color in (self.C_WHITE, self.C_BLACK)
         
         self.moves = None
-        self.captures = None
+        self._captures = None
         self.move_extends = False
 
         self.square = None
@@ -25,6 +25,15 @@ class Piece(object):
             self.C_WHITE: "white"
         }
         return "{} {}".format(color_names[self.color], self.__class__.__name__)
+
+    @property
+    def captures(self):
+        # If there is no explicit _captures set, moves will be used as the captures set
+        if self._captures:
+            return self._captures
+        else:
+            return self.moves
+
 
 
 class King(Piece):
@@ -91,10 +100,10 @@ class Pawn(Piece):
 
         if color == Piece.C_WHITE:
             self.moves = {(0, 1)}
-            self.captures = {(1, 1), (-1, 1)}
+            self._captures = {(1, 1), (-1, 1)}
         elif color == Piece.C_BLACK:
             self.moves = {(0, -1)}
-            self.captures = {(1, -1), (-1, -1)}
+            self._captures = {(1, -1), (-1, -1)}
 
         #TODO: Implement en passant
         #TODO: Implement first move
@@ -104,5 +113,10 @@ king = King(Piece.C_WHITE)
 print(king.moves, type(king.moves))
 knight = Knight(Piece.C_BLACK)
 print(knight.moves, type(knight.moves))
+pawn = Pawn(Piece.C_WHITE)
 
 print(king)
+print(king.moves)
+print(king.captures)
+print(pawn.moves)
+print(pawn.captures)
