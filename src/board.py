@@ -30,5 +30,3 @@ class Board(object):
             if occupant is not None:
                 found_pieces.add(occupant)
         return found_pieces
-
-print(Board().squares)
