@@ -15,8 +15,6 @@ class Piece(object):
         self._captures = None
         self._move_extends = False
 
-        self._square = None
-
     def __repr__(self):
         color_names = {
             self.C_BLACK: "black",
