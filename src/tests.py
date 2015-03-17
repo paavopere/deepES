@@ -1,4 +1,5 @@
 import unittest
+from src.board import Board
 from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
@@ -35,4 +36,9 @@ class TestPieces(unittest.TestCase):
 
 
 class TestBoard(unittest.TestCase):
-    pass
+    def setUp(self):
+        self.board = Board()
+
+    def test_init_success(self):
+        self.assertEqual(len(self.board.squares), 64)
+        self.assertEqual(len(self.board.pieces), 16)
