@@ -4,7 +4,7 @@ from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 class Board(object):
     """
-    Represents a chess board that is inhabited by pieces.
+    A chess board that is inhabited by pieces.
     """
     def __init__(self):
         self.squares = {

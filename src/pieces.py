@@ -1,11 +1,7 @@
-"""
-Module docstring
-"""
-
 
 class Piece(object):
     """
-    Represents a generic chess piece. Particular piece types inherit this class.
+    A generic chess piece. Particular piece types inherit this class.
     """
     # Piece colors
     C_WHITE = 0
@@ -14,7 +10,7 @@ class Piece(object):
     def __init__(self, color):
         self.color = color
         assert self.color in (self.C_WHITE, self.C_BLACK)
-        
+
         self._moves = None
         self._captures = None
         self._move_extends = False
