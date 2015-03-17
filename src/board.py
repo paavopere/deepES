@@ -1,12 +1,11 @@
-"""
-A docstring
-"""
 
 from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
 class Board(object):
-
+    """
+    Represents a chess board that is inhabited by pieces.
+    """
     def __init__(self):
         self.squares = {
             (x, y): None for x in range(1, 9) for y in range(1, 9)

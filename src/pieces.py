@@ -1,10 +1,12 @@
 """
-A docstring
+Module docstring
 """
-#TODO: All docstrings dude
 
 
 class Piece(object):
+    """
+    Represents a generic chess piece. Particular piece types inherit this class.
+    """
     # Piece colors
     C_WHITE = 0
     C_BLACK = 1
