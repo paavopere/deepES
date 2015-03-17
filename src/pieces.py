@@ -108,16 +108,3 @@ class Pawn(Piece):
 
         #TODO: Implement en passant
         #TODO: Implement first move
-
-
-king = King(Piece.C_WHITE)
-print(king._moves, type(king._moves))
-knight = Knight(Piece.C_BLACK)
-print(knight._moves, type(knight._moves))
-pawn = Pawn(Piece.C_WHITE)
-
-print(king)
-print(king._moves)
-print(king.captures)
-print(pawn._moves)
-print(pawn.captures)
