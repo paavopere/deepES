@@ -28,12 +28,11 @@ class Piece(object):
 
     @property
     def captures(self):
-        # If there is no explicit _captures set, moves will be used as the captures set
+        # If there is no explicit capture set, moves will be used as the capture set
         if self._captures:
             return self._captures
         else:
             return self._moves
-
 
 
 class King(Piece):
