@@ -24,6 +24,11 @@ class Board(object):
     @property
     def pieces(self):
         """Set of all pieces currently in play (occupying a square)"""
-        raise NotImplementedError
+        found_pieces = set()
+        for square in self.squares:
+            occupant = self.squares[square]
+            if occupant is not None:
+                found_pieces.add(occupant)
+        return found_pieces
 
 print(Board().squares)
