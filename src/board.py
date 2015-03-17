@@ -2,7 +2,7 @@
 A docstring
 """
 
-from src.deeps import King, Queen, Rook, Bishop, Knight, Pawn, Piece
+from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
 class Board(object):
