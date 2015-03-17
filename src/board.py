@@ -21,4 +21,9 @@ class Board(object):
             self.squares[i + 1, 7] = Pawn(Piece.C_BLACK)
             self.squares[i + 1, 8] = p(Piece.C_BLACK)
 
+    @property
+    def pieces(self):
+        """Set of all pieces currently in play (occupying a square)"""
+        raise NotImplementedError
+
 print(Board().squares)
