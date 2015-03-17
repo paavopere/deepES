@@ -39,6 +39,10 @@ class TestBoard(unittest.TestCase):
     def setUp(self):
         self.board = Board()
 
-    def test_init_success(self):
+    def test_init_squares(self):
         self.assertEqual(len(self.board.squares), 64)
-        self.assertEqual(len(self.board.pieces), 16)
+
+    def test_populate_pieces(self):
+        self.assertEqual(len(self.board.pieces), 32)
+        for piece in self.board.pieces:
+            self.assertIsInstance(piece, Piece)
