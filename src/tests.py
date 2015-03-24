@@ -5,18 +5,19 @@ from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 class TestPieces(unittest.TestCase):
     def setUp(self):
-        self.w_pawn = Pawn(Piece.C_WHITE)
-        self.w_knight = Knight(Piece.C_WHITE)
-        self.w_bishop = Bishop(Piece.C_WHITE)
-        self.w_rook = Rook(Piece.C_WHITE)
-        self.w_queen = Queen(Piece.C_WHITE)
-        self.w_king = King(Piece.C_WHITE)
-        self.b_pawn = Pawn(Piece.C_BLACK)
-        self.b_knight = Knight(Piece.C_BLACK)
-        self.b_bishop = Bishop(Piece.C_BLACK)
-        self.b_rook = Rook(Piece.C_BLACK)
-        self.b_queen = Queen(Piece.C_BLACK)
-        self.b_king = King(Piece.C_BLACK)
+        board = Board()
+        self.w_pawn = Pawn(Piece.C_WHITE, board)
+        self.w_knight = Knight(Piece.C_WHITE, board)
+        self.w_bishop = Bishop(Piece.C_WHITE, board)
+        self.w_rook = Rook(Piece.C_WHITE, board)
+        self.w_queen = Queen(Piece.C_WHITE, board)
+        self.w_king = King(Piece.C_WHITE, board)
+        self.b_pawn = Pawn(Piece.C_BLACK, board)
+        self.b_knight = Knight(Piece.C_BLACK, board)
+        self.b_bishop = Bishop(Piece.C_BLACK, board)
+        self.b_rook = Rook(Piece.C_BLACK, board)
+        self.b_queen = Queen(Piece.C_BLACK, board)
+        self.b_king = King(Piece.C_BLACK, board)
 
     def test_capture_sets(self):
         self.assertTrue(self.w_pawn.captures == {(1, 1), (-1, 1)})

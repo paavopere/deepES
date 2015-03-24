@@ -16,10 +16,10 @@ class Board(object):
     def setup(self):
         cool_pieces = (Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook)
         for i, p in enumerate(cool_pieces):
-            self.squares[i + 1, 1] = p(Piece.C_WHITE)
-            self.squares[i + 1, 2] = Pawn(Piece.C_WHITE)
-            self.squares[i + 1, 7] = Pawn(Piece.C_BLACK)
-            self.squares[i + 1, 8] = p(Piece.C_BLACK)
+            self.squares[i + 1, 1] = p(Piece.C_WHITE, self)
+            self.squares[i + 1, 2] = Pawn(Piece.C_WHITE, self)
+            self.squares[i + 1, 7] = Pawn(Piece.C_BLACK, self)
+            self.squares[i + 1, 8] = p(Piece.C_BLACK, self)
 
     @property
     def pieces(self):

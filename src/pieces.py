@@ -7,10 +7,11 @@ class Piece(object):
     C_WHITE = 0
     C_BLACK = 1
 
-    def __init__(self, color):
+    def __init__(self, color, board):
         self.color = color
         assert self.color in (self.C_WHITE, self.C_BLACK)
 
+        self._board = board
         self._moves = None
         self._captures = None
         self._move_extends = False
@@ -30,10 +31,14 @@ class Piece(object):
         else:
             return self._moves
 
+    @property
+    def board(self):
+        return self._board
+
 
 class King(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         self._moves = {
             (x, y) for x in (-1, 0, 1) for y in (-1, 0, 1)
@@ -44,8 +49,8 @@ class King(Piece):
 
 
 class Queen(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         self._move_extends = True
 
@@ -55,8 +60,8 @@ class Queen(Piece):
 
 
 class Rook(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         self._move_extends = True
 
@@ -68,8 +73,8 @@ class Rook(Piece):
 
 
 class Bishop(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         self._move_extends = True
 
@@ -79,8 +84,8 @@ class Bishop(Piece):
 
 
 class Knight(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         self._moves = {
             (x, y) for x in (-2, 2) for y in (-1, 1)
@@ -90,8 +95,8 @@ class Knight(Piece):
 
 
 class Pawn(Piece):
-    def __init__(self, color):
-        super().__init__(color)
+    def __init__(self, color, board):
+        super().__init__(color, board)
 
         if color == Piece.C_WHITE:
             self._moves = {(0, 1)}
