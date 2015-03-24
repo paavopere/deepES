@@ -39,6 +39,10 @@ class TestPieces(unittest.TestCase):
         with self.assertRaises(ValueError):
             Queen(color=123, board=self.board)
 
+    def test_create_generic_piece(self):
+        with self.assertRaises(TypeError):
+            Piece(Piece.C_BLACK, self.board)
+
 
 class TestBoard(unittest.TestCase):
     def setUp(self):

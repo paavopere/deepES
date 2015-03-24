@@ -1,19 +1,22 @@
+from abc import ABCMeta, abstractmethod
 
-class Piece(object):
+
+class Piece(metaclass=ABCMeta):
     """
     A generic chess piece. Particular piece types inherit this class.
     """
+
     # Piece colors
     C_WHITE = 0
     C_BLACK = 1
 
+    @abstractmethod
     def __init__(self, color, board):
         self.color = color
         if self.color not in (self.C_WHITE, self.C_BLACK):
             raise ValueError("Invalid color")
 
         self._board = board
-        self._moves = None
         self._captures = None
         self._move_extends = False
 
