@@ -9,7 +9,8 @@ class Piece(object):
 
     def __init__(self, color, board):
         self.color = color
-        assert self.color in (self.C_WHITE, self.C_BLACK)
+        if self.color not in (self.C_WHITE, self.C_BLACK):
+            raise ValueError("Invalid color")
 
         self._board = board
         self._moves = None
