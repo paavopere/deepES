@@ -21,6 +21,13 @@ class Board(object):
             self.squares[i + 1, 7] = Pawn(Piece.C_BLACK, self)
             self.squares[i + 1, 8] = p(Piece.C_BLACK, self)
 
+    def location(self, piece):
+        # for square in self.squares:
+        #     occupant = self.squares[square]
+        #     if occupant is piece:
+        #         return square
+        raise NotImplementedError
+
     @property
     def pieces(self):
         """Set of all pieces currently in play (occupying a square)"""

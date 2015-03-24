@@ -27,6 +27,12 @@ class Piece(metaclass=ABCMeta):
         }
         return "{} {}".format(color_names[self.color], self.__class__.__name__)
 
+    def conduct_move(self, x, y):
+        raise NotImplementedError
+
+    def move_is_legal(self, x, y):
+        raise NotImplementedError
+
     @property
     def captures(self):
         # If there is no explicit capture set, moves will be used as the capture set
