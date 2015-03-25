@@ -1,4 +1,3 @@
-
 from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
@@ -6,6 +5,7 @@ class Board(object):
     """
     A chess board that is inhabited by pieces.
     """
+
     def __init__(self, setup_pieces=True):
         self._squares = {
             (x, y): None for x in range(1, 9) for y in range(1, 9)
