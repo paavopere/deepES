@@ -20,6 +20,7 @@ class Piece(metaclass=ABCMeta):
         self._moves = None
         self._captures = None
         self._move_extends = False
+        self._has_moved = False
 
     def __repr__(self):
         color_names = {
