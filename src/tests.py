@@ -5,7 +5,7 @@ from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 class TestPieces(unittest.TestCase):
     def setUp(self):
-        b = self.board = Board()
+        b = self.board = Board(setup_pieces=False)
         self.w_pawn = Pawn(Piece.C_WHITE, b)
         self.w_knight = Knight(Piece.C_WHITE, b)
         self.w_bishop = Bishop(Piece.C_WHITE, b)
@@ -65,3 +65,33 @@ class TestBoard(unittest.TestCase):
     def test_unpopulated_board(self):
         """Test that we can create a board with no pieces"""
         self.assertEqual(len(Board(setup_pieces=False).pieces), 0)
+
+    def test_location(self):
+        """Test that Board.location method works as intended with valid inputs"""
+        # identify some pieces created in setup
+        black_king, white_queen = None, None
+        for piece in self.board.pieces:
+            if piece.__class__ == King and piece.color == Piece.C_BLACK:
+                black_king = piece
+            if piece.__class__ == Queen and piece.color == Piece.C_WHITE:
+                white_queen = piece
+        # assert their locations
+        self.assertEqual(self.board.location(black_king), (5, 8))
+        self.assertEqual(self.board.location(white_queen), (4, 1))
+
+        # create a piece on this board without a location and check that its location is None
+        new_piece = Knight(Piece.C_WHITE, self.board)
+        self.assertIs(self.board.location(new_piece), None)
+
+    def test_location_exceptions(self):
+        # create a piece on a new board and check that calling its location on
+        # this board raises ValueError
+        foreign_piece = Pawn(Piece.C_BLACK, Board())
+        with self.assertRaises(ValueError):
+            self.board.location(foreign_piece)
+
+        # check that a piece being in multiple locations raises ValueError
+        schrodingers_piece = Bishop(Piece.C_BLACK, self.board)
+        self.board.squares[(1, 4)] = self.board.squares[(2, 4)] = schrodingers_piece
+        with self.assertRaises(AssertionError):
+            self.board.location(schrodingers_piece)

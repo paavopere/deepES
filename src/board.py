@@ -23,11 +23,23 @@ class Board(object):
             self.squares[i + 1, 8] = p(Piece.C_BLACK, self)
 
     def location(self, piece):
-        # for square in self.squares:
-        #     occupant = self.squares[square]
-        #     if occupant is piece:
-        #         return square
-        raise NotImplementedError
+        """
+        The location of a piece on this board.
+
+        Return: tuple (x, y) if the piece is found on this board.
+        Return: None if the piece is not found on this board
+        Raise: ValueError if this is not the piece's board.
+        Raise: AssertionError if the piece is found in multiple coordinates.
+        """
+        if piece.board is not self:
+            raise ValueError("This is not the piece's ({0}) board".format(piece))
+        loc = None
+        for square in self.squares:
+            occupant = self.squares[square]
+            if occupant is piece:
+                assert loc is None, "Same piece found in multiple coordinates"
+                loc = square
+        return loc
 
     @property
     def pieces(self):
