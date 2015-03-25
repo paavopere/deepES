@@ -47,6 +47,17 @@ class TestPieces(unittest.TestCase):
         with self.assertRaises(TypeError):
             Piece(Piece.C_BLACK, self.board)
 
+    def test_location(self):
+        """Test locations with the newly created pieces"""
+        self.assertIs(self.w_rook.location, None)
+        self.assertIs(self.w_knight.location, None)
+        self.assertIs(self.b_pawn.location, None)
+        self.assertIs(self.b_queen.location, None)
+
+        # Put one of the pieces in a square and check location
+        self.board.squares[(1, 1)] = self.w_rook
+        self.assertEqual(self.w_rook.location, (1, 1))
+
 
 class TestBoard(unittest.TestCase):
     def setUp(self):

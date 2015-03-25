@@ -45,7 +45,15 @@ class Piece(metaclass=ABCMeta):
 
     @property
     def board(self):
+        """
+        Return the board object that this piece belongs to. If the piece is captured, it will still
+        belong to the board (although its location is None).
+        """
         return self._board
+
+    @property
+    def location(self):
+        return self.board.location(self)
 
 
 class King(Piece):
