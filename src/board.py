@@ -54,6 +54,11 @@ class Board:
         self._squares[(x, y)] = piece
 
     @property
+    def squares(self):
+        """Set of all squares of the board as 2-tuples (x, y)"""
+        return self._squares.keys()
+
+    @property
     def pieces(self):
         """Set of all pieces currently in play (occupying a square)"""
         found_pieces = set()
