@@ -1,7 +1,7 @@
 from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
-class Board(object):
+class Board:
     """
     A chess board that is inhabited by pieces.
     """
