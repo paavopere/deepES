@@ -41,6 +41,18 @@ class Board(object):
                 loc = square
         return loc
 
+    def get_square(self, x, y):
+        """Return the occupant of square (x, y)"""
+        if not (1 <= x <= 8 and 1 <= y <= 8):
+            raise ValueError("Coordinate out of bounds")
+        return self._squares[(x, y)]
+
+    def set_square(self, x, y, piece):
+        """Set the occupant of square (x, y)"""
+        if not (1 <= x <= 8 and 1 <= y <= 8):
+            raise ValueError("Coordinate out of bounds")
+        self._squares[(x, y)] = piece
+
     @property
     def pieces(self):
         """Set of all pieces currently in play (occupying a square)"""
