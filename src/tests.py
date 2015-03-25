@@ -61,3 +61,7 @@ class TestBoard(unittest.TestCase):
         self.assertEqual(len(self.board.pieces), 32)
         for piece in self.board.pieces:
             self.assertIsInstance(piece, Piece)
+
+    def test_unpopulated_board(self):
+        """Test that we can create a board with no pieces"""
+        self.assertEqual(len(Board(setup_pieces=False).pieces), 0)

@@ -6,12 +6,13 @@ class Board(object):
     """
     A chess board that is inhabited by pieces.
     """
-    def __init__(self):
+    def __init__(self, setup_pieces=True):
         self.squares = {
             (x, y): None for x in range(1, 9) for y in range(1, 9)
         }
 
-        self.setup()
+        if setup_pieces:
+            self.setup()
 
     def setup(self):
         cool_pieces = (Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook)
