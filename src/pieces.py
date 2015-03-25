@@ -17,6 +17,7 @@ class Piece(metaclass=ABCMeta):
             raise ValueError("Invalid color")
 
         self._board = board
+        self._moves = None
         self._captures = None
         self._move_extends = False
 
