@@ -55,7 +55,7 @@ class TestPieces(unittest.TestCase):
         self.assertIs(self.b_queen.location, None)
 
         # Put one of the pieces in a square and check location
-        self.board.squares[(1, 1)] = self.w_rook
+        self.board._squares[(1, 1)] = self.w_rook
         self.assertEqual(self.w_rook.location, (1, 1))
 
 
@@ -65,7 +65,7 @@ class TestBoard(unittest.TestCase):
 
     def test_init_squares(self):
         """Test that we have 64 squares on board"""
-        self.assertEqual(len(self.board.squares), 64)
+        self.assertEqual(len(self.board._squares), 64)
 
     def test_populate_pieces(self):
         """Test that we have 32 pieces on board after population"""
@@ -103,6 +103,6 @@ class TestBoard(unittest.TestCase):
 
         # check that a piece being in multiple locations raises ValueError
         schrodingers_piece = Bishop(Piece.C_BLACK, self.board)
-        self.board.squares[(1, 4)] = self.board.squares[(2, 4)] = schrodingers_piece
+        self.board._squares[(1, 4)] = self.board._squares[(2, 4)] = schrodingers_piece
         with self.assertRaises(AssertionError):
             self.board.location(schrodingers_piece)
