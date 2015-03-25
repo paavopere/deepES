@@ -20,6 +20,7 @@ class TestPieces(unittest.TestCase):
         self.b_king = King(Piece.C_BLACK, b)
 
     def test_capture_sets(self):
+        """Test that capture sets are what we expected"""
         self.assertTrue(self.w_pawn.captures == {(1, 1), (-1, 1)})
         self.assertTrue(self.b_pawn.captures == {(1, -1), (-1, -1)})
         self.assertTrue(self.w_knight.captures == self.b_knight.captures
@@ -33,13 +34,16 @@ class TestPieces(unittest.TestCase):
                         == {(1, 0), (0, 1), (-1, 0), (0, -1)})
 
     def test_repr(self):
+        """Test that we have an expected piece __repr__"""
         self.assertEqual(repr(self.b_queen), "black Queen")
 
     def test_unexpected_color(self):
+        """Trying to initiate a piece with an unexpected color should raise ValueError"""
         with self.assertRaises(ValueError):
             Queen(color=123, board=self.board)
 
     def test_create_generic_piece(self):
+        """Trying to initiate Piece() directly should raise TypeError"""
         with self.assertRaises(TypeError):
             Piece(Piece.C_BLACK, self.board)
 
@@ -49,9 +53,11 @@ class TestBoard(unittest.TestCase):
         self.board = Board()
 
     def test_init_squares(self):
+        """Test that we have 64 squares on board"""
         self.assertEqual(len(self.board.squares), 64)
 
     def test_populate_pieces(self):
+        """Test that we have 32 pieces on board after population"""
         self.assertEqual(len(self.board.pieces), 32)
         for piece in self.board.pieces:
             self.assertIsInstance(piece, Piece)
