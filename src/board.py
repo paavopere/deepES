@@ -77,6 +77,27 @@ class Board:
             raise TypeError("{} is not a piece class". format(piece_class))
         return piece_class(color, self)
 
+    def create_piece_in_square(self, piece_class, color, square, forceful=False):
+        """
+        Try to create a piece of piece_class with a certain color in a square.
+            piece_class: class of the piece
+            color: color of the piece
+            square: tuple (or similar) containing (x, y)
+            forceful: bool, default False. Whether we want to put the piece here, regardless of
+                whether another piece already occupies the square.
+
+            Return: the created piece object
+            Raise: AssertionError if called without forceful, and the square is occupied.
+        """
+        p = self.create_piece(piece_class, color)
+        try:
+            self.set_square(p, square, forceful=forceful)
+        except:
+            # yes, the piece is 100% gone, regardless of gc, if set_square was not successful
+            del p
+            raise
+        return p
+
     def is_free(self, square):
         """Return True if square is free, False otherwise"""
         return self.get_square(square) is None
