@@ -55,7 +55,7 @@ class TestPieces(unittest.TestCase):
         self.assertIs(self.b_queen.location, None)
 
         # Put one of the pieces in a square and check location
-        self.board.set_square(self.w_rook, 1, 1)
+        self.board.set_square(self.w_rook, (1, 1))
         self.assertEqual(self.w_rook.location, (1, 1))
 
 
@@ -80,7 +80,7 @@ class TestBoard(unittest.TestCase):
         """Return a string representation of pieces on board
          in a format similar to self.magic_reference"""
         return "\n".join([str(
-            [repr(board.get_square(x, y)) for x in range(1, 9)]
+            [repr(board.get_square((x, y))) for x in range(1, 9)]
         ) for y in range(1, 9)[::-1]])
 
     def test_init_squares(self):
@@ -143,9 +143,9 @@ class TestBoard(unittest.TestCase):
             ("1", 2),
             (None, None)
         )
-        for values in test_inputs:
+        for coord in test_inputs:
             with self.assertRaises(ValueError):
-                self.board.get_square(*values)
+                self.board.get_square(coord)
             with self.assertRaises(ValueError):
                 p = Bishop(Piece.C_BLACK, self.board)
-                self.board.set_square(p, *values)
+                self.board.set_square(p, coord)
