@@ -98,7 +98,9 @@ class Board:
         try:
             self.set_square(p, square, forceful=forceful)
         except:
-            # yes, the piece is 100% gone, regardless of gc, if set_square was not successful
+            # Yes, the piece is 100% gone, regardless of garbage collection
+            # or anything, if set_square was not successful. Please, forgive
+            # me for using the del statement here.
             del p
             raise
         return p
