@@ -77,6 +77,10 @@ class Board:
             raise TypeError("{} is not a piece class". format(piece_class))
         return piece_class(color, self)
 
+    def is_free(self, square):
+        """Return True if square is free, False otherwise"""
+        return self.get_square(square) is None
+
     @property
     def squares(self):
         """Set of all squares of the board as 2-tuples (x, y)"""
@@ -91,7 +95,3 @@ class Board:
             if occupant is not None:
                 found_pieces.add(occupant)
         return found_pieces
-
-    def is_free(self, square):
-        """Return True if square is free, False otherwise"""
-        return self.get_square(square) is None
