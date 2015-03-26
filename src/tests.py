@@ -124,7 +124,7 @@ class TestBoard(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.board.location(foreign_piece)
 
-        # check that a piece being in multiple locations raises ValueError
+        # check that a piece being in multiple locations raises AssertionError
         schrodingers_piece = Bishop(Piece.C_BLACK, self.board)
         self.board._squares[(1, 4)] = self.board._squares[(2, 4)] = schrodingers_piece
         with self.assertRaises(AssertionError):
