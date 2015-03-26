@@ -17,10 +17,10 @@ class Board:
     def setup(self):
         cool_pieces = (Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook)
         for i, p in enumerate(cool_pieces):
-            self.set_square(i + 1, 1, p(Piece.C_WHITE, self))
-            self.set_square(i + 1, 2, Pawn(Piece.C_WHITE, self))
-            self.set_square(i + 1, 7, Pawn(Piece.C_BLACK, self))
-            self.set_square(i + 1, 8, p(Piece.C_BLACK, self))
+            self.set_square(p(Piece.C_WHITE, self), i + 1, 1)
+            self.set_square(Pawn(Piece.C_WHITE, self), i + 1, 2)
+            self.set_square(Pawn(Piece.C_BLACK, self), i + 1, 7)
+            self.set_square(p(Piece.C_BLACK, self), i + 1, 8)
 
     def location(self, piece):
         """
@@ -47,7 +47,7 @@ class Board:
             raise ValueError("Invalid coordinates ({}, {})".format(x, y))
         return self._squares[(x, y)]
 
-    def set_square(self, x, y, piece):
+    def set_square(self, piece, x, y):
         """Set the occupant of square (x, y)"""
         if not (isinstance(x, int) and isinstance(y, int) and 1 <= x <= 8 and 1 <= y <= 8):
             raise ValueError("Invalid coordinates ({}, {})".format(x, y))

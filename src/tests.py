@@ -55,7 +55,7 @@ class TestPieces(unittest.TestCase):
         self.assertIs(self.b_queen.location, None)
 
         # Put one of the pieces in a square and check location
-        self.board.set_square(1, 1, self.w_rook)
+        self.board.set_square(self.w_rook, 1, 1)
         self.assertEqual(self.w_rook.location, (1, 1))
 
 
@@ -129,3 +129,23 @@ class TestBoard(unittest.TestCase):
         self.board._squares[(1, 4)] = self.board._squares[(2, 4)] = schrodingers_piece
         with self.assertRaises(AssertionError):
             self.board.location(schrodingers_piece)
+
+    def test_invalid_square_calls(self):
+        """Test that getting or setting squares with unexpected x, y raise errors"""
+        test_inputs = (
+            (8, 9),
+            (9, 8),
+            (0, 1),
+            (1, 0),
+            (-1, -9),
+            (1.2, 1),
+            ("a", "b"),
+            ("1", 2),
+            (None, None)
+        )
+        for values in test_inputs:
+            with self.assertRaises(ValueError):
+                self.board.get_square(*values)
+            with self.assertRaises(ValueError):
+                p = Bishop(Piece.C_BLACK, self.board)
+                self.board.set_square(p, *values)
