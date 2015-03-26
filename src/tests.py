@@ -63,15 +63,38 @@ class TestBoard(unittest.TestCase):
     def setUp(self):
         self.board = Board()
 
+        self.magic_reference = (
+            "['black Rook', 'black Knight', 'black Bishop', 'black Queen', 'black King', "
+            "'black Bishop', 'black Knight', 'black Rook']\n['black Pawn', 'black Pawn', "
+            "'black Pawn', 'black Pawn', 'black Pawn', 'black Pawn', 'black Pawn', 'black Pawn']\n"
+            "['None', 'None', 'None', 'None', 'None', 'None', 'None', 'None']\n['None', 'None', "
+            "'None', 'None', 'None', 'None', 'None', 'None']\n['None', 'None', 'None', 'None', "
+            "'None', 'None', 'None', 'None']\n['None', 'None', 'None', 'None', 'None', 'None', "
+            "'None', 'None']\n['white Pawn', 'white Pawn', 'white Pawn', 'white Pawn', "
+            "'white Pawn', 'white Pawn', 'white Pawn', 'white Pawn']\n['white Rook', "
+            "'white Knight', 'white Bishop', 'white Queen', 'white King', 'white Bishop', "
+            "'white Knight', 'white Rook']")
+
+    @staticmethod
+    def magic_representation(board):
+        """Return a string representation of pieces on board
+         in a format similar to self.magic_reference"""
+        return "\n".join([str(
+            [repr(board.get_square(x, y)) for x in range(1, 9)]
+        ) for y in range(1, 9)[::-1]])
+
     def test_init_squares(self):
         """Test that we have 64 squares on board"""
         self.assertEqual(len(self.board.squares), 64)
 
     def test_populate_pieces(self):
-        """Test that we have 32 pieces on board after population"""
+        """Test that pieces were populated correctly"""
         self.assertEqual(len(self.board.pieces), 32)
         for piece in self.board.pieces:
             self.assertIsInstance(piece, Piece)
+
+        # Check that all pieces are in correct places through "magic reference"
+        self.assertEqual(self.magic_representation(self.board), self.magic_reference)
 
     def test_unpopulated_board(self):
         """Test that we can create a board with no pieces"""
