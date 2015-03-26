@@ -17,10 +17,10 @@ class Board:
     def setup(self):
         cool_pieces = (Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook)
         for i, p in enumerate(cool_pieces):
-            self._squares[i + 1, 1] = p(Piece.C_WHITE, self)
-            self._squares[i + 1, 2] = Pawn(Piece.C_WHITE, self)
-            self._squares[i + 1, 7] = Pawn(Piece.C_BLACK, self)
-            self._squares[i + 1, 8] = p(Piece.C_BLACK, self)
+            self.set_square(i + 1, 1, p(Piece.C_WHITE, self))
+            self.set_square(i + 1, 2, Pawn(Piece.C_WHITE, self))
+            self.set_square(i + 1, 7, Pawn(Piece.C_BLACK, self))
+            self.set_square(i + 1, 8, p(Piece.C_BLACK, self))
 
     def location(self, piece):
         """
@@ -34,8 +34,8 @@ class Board:
         if piece.board is not self:
             raise ValueError("This is not the piece's ({0}) board".format(piece))
         loc = None
-        for square in self._squares:
-            occupant = self._squares[square]
+        for square in self.squares:
+            occupant = self.get_square(*square)
             if occupant is piece:
                 assert loc is None, "Same piece found in multiple coordinates"
                 loc = square
@@ -54,11 +54,16 @@ class Board:
         self._squares[(x, y)] = piece
 
     @property
+    def squares(self):
+        """Set of all squares of the board as 2-tuples (x, y)"""
+        return self._squares.keys()
+
+    @property
     def pieces(self):
         """Set of all pieces currently in play (occupying a square)"""
         found_pieces = set()
-        for square in self._squares:
-            occupant = self._squares[square]
+        for square in self.squares:
+            occupant = self.get_square(*square)
             if occupant is not None:
                 found_pieces.add(occupant)
         return found_pieces
