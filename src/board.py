@@ -54,6 +54,7 @@ class Board:
         self._squares[(x, y)] = piece
 
     def create_piece(self, piece_class, color):
+        """Create a piece of piece_class with a certain color"""
         if not issubclass(piece_class, Piece):
             raise TypeError("{} is not a piece class". format(piece_class))
         return piece_class(color, self)
