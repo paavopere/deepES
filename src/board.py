@@ -52,14 +52,20 @@ class Board:
             raise ValueError("Invalid coordinates ({}, {})".format(x, y))
         return self._squares[(x, y)]
 
-    def set_square(self, piece, square):
+    def set_square(self, piece, square, forceful=False):
         """
         Set the occupant of square.
             square: tuple (or similar) containing (x, y)
+            forceful: bool, default False. Whether we want to put the piece here, regardless of
+                whether another piece already occupies the square.
+            Raise: AssertionError if called without forceful, and the square is occupied.
         """
         x, y = square
         if not (isinstance(x, int) and isinstance(y, int) and 1 <= x <= 8 and 1 <= y <= 8):
             raise ValueError("Invalid coordinates ({}, {})".format(x, y))
+        if not forceful:
+            assert self.is_free(square), "Square ({}, {}) is already occupied".format(*square)
+
         self._squares[(x, y)] = piece
 
     def create_piece(self, piece_class, color):
@@ -85,3 +91,7 @@ class Board:
             if occupant is not None:
                 found_pieces.add(occupant)
         return found_pieces
+
+    def is_free(self, square):
+        """Return True if square is free, False otherwise"""
+        return self.get_square(square) is None
