@@ -149,3 +149,22 @@ class TestBoard(unittest.TestCase):
             with self.assertRaises(ValueError):
                 p = Bishop(Piece.C_BLACK, self.board)
                 self.board.set_square(p, coord)
+
+    def test_create_piece_in_square(self):
+        # regular working case
+        sq = (3, 4)
+        p = self.board.create_piece_in_square(Pawn, Piece.C_BLACK, sq)
+        self.assertIs(p, self.board.get_square(sq))
+
+        # meaningless input
+        with self.assertRaises(TypeError):
+            self.board.create_piece_in_square(1, 2, 3, 4)
+
+        # occupied square after init
+        sq = (1, 1)
+        with self.assertRaises(AssertionError):
+            self.board.create_piece_in_square(Rook, Piece.C_BLACK, sq)
+
+        # previously occupied square with forceful
+        p = self.board.create_piece_in_square(Rook, Piece.C_BLACK, sq, True)
+        self.assertIs(p, self.board.get_square(sq))
