@@ -15,12 +15,17 @@ class Board:
             self.setup()
 
     def setup(self):
+        """Setup the chess board (initialize pieces). Fails with AssertionError if the board is
+        not empty."""
+        assert len(self.pieces_in_play) == 0, "Cannot setup board if there are already " \
+                                              "pieces in play"
+
         cool_pieces = (Rook, Knight, Bishop, Queen, King, Bishop, Knight, Rook)
         for i, p in enumerate(cool_pieces):
-            self.set_square(p(Piece.C_WHITE, self), (i + 1, 1))
-            self.set_square(Pawn(Piece.C_WHITE, self), (i + 1, 2))
-            self.set_square(Pawn(Piece.C_BLACK, self), (i + 1, 7))
-            self.set_square(p(Piece.C_BLACK, self), (i + 1, 8))
+            self.create_piece_in_square(p, Piece.C_WHITE, (i + 1, 1))
+            self.create_piece_in_square(p, Piece.C_BLACK, (i + 1, 8))
+            self.create_piece_in_square(Pawn, Piece.C_WHITE, (i + 1, 2))
+            self.create_piece_in_square(Pawn, Piece.C_BLACK, (i + 1, 7))
 
     def location(self, piece):
         """
