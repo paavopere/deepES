@@ -77,7 +77,7 @@ class Board:
         return self._squares.keys()
 
     @property
-    def pieces(self):
+    def pieces_on_board(self):
         """Set of all pieces currently in play (occupying a square)"""
         found_pieces = set()
         for sq in self.squares:
