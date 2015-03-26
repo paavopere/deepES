@@ -78,7 +78,7 @@ class Board:
         Create a piece of piece_class with a certain color.
             Return: the created piece object.
         """
-        if not issubclass(piece_class, Piece):
+        if not (isinstance(piece_class, type) and issubclass(piece_class, Piece)):
             raise TypeError("{} is not a piece class". format(piece_class))
         return piece_class(color, self)
 
