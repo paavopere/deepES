@@ -89,8 +89,8 @@ class TestBoard(unittest.TestCase):
 
     def test_populate_pieces(self):
         """Test that pieces were populated correctly"""
-        self.assertEqual(len(self.board.pieces_on_board), 32)
-        for piece in self.board.pieces_on_board:
+        self.assertEqual(len(self.board.pieces_in_play), 32)
+        for piece in self.board.pieces_in_play:
             self.assertIsInstance(piece, Piece)
 
         # Check that all pieces are in correct places through "magic reference"
@@ -98,13 +98,13 @@ class TestBoard(unittest.TestCase):
 
     def test_unpopulated_board(self):
         """Test that we can create a board with no pieces"""
-        self.assertEqual(len(Board(setup_pieces=False).pieces_on_board), 0)
+        self.assertEqual(len(Board(setup_pieces=False).pieces_in_play), 0)
 
     def test_location(self):
         """Test that Board.location method works as intended with valid inputs"""
         # identify some pieces created in setup
         black_king, white_queen = None, None
-        for piece in self.board.pieces_on_board:
+        for piece in self.board.pieces_in_play:
             if piece.__class__ == King and piece.color == Piece.C_BLACK:
                 black_king = piece
             if piece.__class__ == Queen and piece.color == Piece.C_WHITE:
