@@ -160,6 +160,10 @@ class TestBoard(unittest.TestCase):
         with self.assertRaises(TypeError):
             self.board.create_piece_in_square(1, 2, 3, 4)
 
+        # invalid square
+        with self.assertRaises(ValueError):
+            self.board.create_piece_in_square(Rook, Piece.C_BLACK, (9, 9), True)
+
         # occupied square after init
         sq = (1, 1)
         with self.assertRaises(AssertionError):
