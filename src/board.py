@@ -43,14 +43,14 @@ class Board:
 
     def get_square(self, x, y):
         """Return the occupant of square (x, y)"""
-        if not (1 <= x <= 8 and 1 <= y <= 8):
-            raise ValueError("Coordinate out of bounds")
+        if not (1 <= x <= 8 and 1 <= y <= 8 and isinstance(x, int) and isinstance(y, int)):
+            raise ValueError("Invalid coordinates ({}, {})".format(x, y))
         return self._squares[(x, y)]
 
     def set_square(self, x, y, piece):
         """Set the occupant of square (x, y)"""
-        if not (1 <= x <= 8 and 1 <= y <= 8):
-            raise ValueError("Coordinate out of bounds")
+        if not (1 <= x <= 8 and 1 <= y <= 8 and isinstance(x, int) and isinstance(y, int)):
+            raise ValueError("Invalid coordinates ({}, {})".format(x, y))
         self._squares[(x, y)] = piece
 
     @property
