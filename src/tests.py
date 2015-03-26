@@ -55,7 +55,7 @@ class TestPieces(unittest.TestCase):
         self.assertIs(self.b_queen.location, None)
 
         # Put one of the pieces in a square and check location
-        self.board.set_square(1, 1, self.w_rook)
+        self.board.set_square(self.w_rook, (1, 1))
         self.assertEqual(self.w_rook.location, (1, 1))
 
 
@@ -80,7 +80,7 @@ class TestBoard(unittest.TestCase):
         """Return a string representation of pieces on board
          in a format similar to self.magic_reference"""
         return "\n".join([str(
-            [repr(board.get_square(x, y)) for x in range(1, 9)]
+            [repr(board.get_square((x, y))) for x in range(1, 9)]
         ) for y in range(1, 9)[::-1]])
 
     def test_init_squares(self):
@@ -89,8 +89,8 @@ class TestBoard(unittest.TestCase):
 
     def test_populate_pieces(self):
         """Test that pieces were populated correctly"""
-        self.assertEqual(len(self.board.pieces), 32)
-        for piece in self.board.pieces:
+        self.assertEqual(len(self.board.pieces_in_play), 32)
+        for piece in self.board.pieces_in_play:
             self.assertIsInstance(piece, Piece)
 
         # Check that all pieces are in correct places through "magic reference"
@@ -98,13 +98,13 @@ class TestBoard(unittest.TestCase):
 
     def test_unpopulated_board(self):
         """Test that we can create a board with no pieces"""
-        self.assertEqual(len(Board(setup_pieces=False).pieces), 0)
+        self.assertEqual(len(Board(setup_pieces=False).pieces_in_play), 0)
 
     def test_location(self):
         """Test that Board.location method works as intended with valid inputs"""
         # identify some pieces created in setup
         black_king, white_queen = None, None
-        for piece in self.board.pieces:
+        for piece in self.board.pieces_in_play:
             if piece.__class__ == King and piece.color == Piece.C_BLACK:
                 black_king = piece
             if piece.__class__ == Queen and piece.color == Piece.C_WHITE:
@@ -124,8 +124,51 @@ class TestBoard(unittest.TestCase):
         with self.assertRaises(ValueError):
             self.board.location(foreign_piece)
 
-        # check that a piece being in multiple locations raises ValueError
+        # check that a piece being in multiple locations raises AssertionError
         schrodingers_piece = Bishop(Piece.C_BLACK, self.board)
         self.board._squares[(1, 4)] = self.board._squares[(2, 4)] = schrodingers_piece
         with self.assertRaises(AssertionError):
             self.board.location(schrodingers_piece)
+
+    def test_invalid_square_calls(self):
+        """Test that getting or setting squares with unexpected x, y raise errors"""
+        test_inputs = (
+            (8, 9),
+            (9, 8),
+            (0, 1),
+            (1, 0),
+            (-1, -9),
+            (1.2, 1),
+            ("a", "b"),
+            ("1", 2),
+            (None, None)
+        )
+        for coord in test_inputs:
+            with self.assertRaises(ValueError):
+                self.board.get_square(coord)
+            with self.assertRaises(ValueError):
+                p = Bishop(Piece.C_BLACK, self.board)
+                self.board.set_square(p, coord)
+
+    def test_create_piece_in_square(self):
+        # regular working case
+        sq = (3, 4)
+        p = self.board.create_piece_in_square(Pawn, Piece.C_BLACK, sq)
+        self.assertIs(p, self.board.get_square(sq))
+
+        # meaningless input
+        with self.assertRaises(TypeError):
+            self.board.create_piece_in_square(1, 2, 3, 4)
+
+        # invalid square
+        with self.assertRaises(ValueError):
+            self.board.create_piece_in_square(Rook, Piece.C_BLACK, (9, 9), True)
+
+        # occupied square after init
+        sq = (1, 1)
+        with self.assertRaises(AssertionError):
+            self.board.create_piece_in_square(Rook, Piece.C_BLACK, sq)
+
+        # previously occupied square with forceful
+        p = self.board.create_piece_in_square(Rook, Piece.C_BLACK, sq, True)
+        self.assertIs(p, self.board.get_square(sq))
