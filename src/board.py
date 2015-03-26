@@ -53,6 +53,11 @@ class Board:
             raise ValueError("Invalid coordinates ({}, {})".format(x, y))
         self._squares[(x, y)] = piece
 
+    def create_piece(self, piece_class, color):
+        if not issubclass(piece_class, Piece):
+            raise TypeError("{} is not a piece class". format(piece_class))
+        return piece_class(color, self)
+
     @property
     def squares(self):
         """Set of all squares of the board as 2-tuples (x, y)"""
