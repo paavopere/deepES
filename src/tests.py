@@ -175,6 +175,16 @@ class TestBoard(unittest.TestCase):
 
     def test_some_moves(self):
         # white pawn 1 forward
-        self.board.get_square((1, 2)).conduct_move((1, 3))
+        self.assertTrue(
+            self.board.get_square((1, 2)).conduct_move((1, 3)))
         # black pawn 1 forward
-        self.board.get_square((1, 8)).conduct_move((1, 6))
+        self.assertTrue(
+            self.board.get_square((1, 8)).conduct_move((1, 7)))
+
+        # white pawn backwards fails
+        with self.assertRaises(Exception):
+            self.board.get_square((2, 2)).conduct_move((2, 1))
+
+        # white pawn 2 forward
+        self.assertTrue(
+            self.board.get_square((2, 2)).conduct_move((2, 4)))
