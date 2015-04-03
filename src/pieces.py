@@ -29,10 +29,10 @@ class Piece(metaclass=ABCMeta):
         }
         return "{} {}".format(color_names[self.color], self.__class__.__name__)
 
-    def conduct_move(self, x, y):
+    def conduct_move(self, square):
         raise NotImplementedError
 
-    def move_is_legal(self, x, y):
+    def move_is_legal(self, square):
         raise NotImplementedError
 
     @property
