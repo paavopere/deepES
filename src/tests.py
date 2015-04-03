@@ -172,3 +172,9 @@ class TestBoard(unittest.TestCase):
         # previously occupied square with forceful
         p = self.board.create_piece_in_square(Rook, Piece.C_BLACK, sq, True)
         self.assertIs(p, self.board.get_square(sq))
+
+    def test_some_moves(self):
+        # white pawn 1 forward
+        self.board.get_square((1, 2)).conduct_move((1, 3))
+        # black pawn 1 forward
+        self.board.get_square((1, 8)).conduct_move((1, 6))
