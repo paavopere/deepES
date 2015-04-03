@@ -11,6 +11,8 @@ class Board:
             (x, y): None for x in range(1, 9) for y in range(1, 9)
         }
 
+        self._turn = Piece.C_WHITE
+
         if setup_pieces:
             self.setup()
 
@@ -108,6 +110,16 @@ class Board:
     def is_free(self, square):
         """Return True if square is free, False otherwise"""
         return self.get_square(square) is None
+
+    def change_turn(self):
+        if self._turn == Piece.C_WHITE:
+            self._turn = Piece.C_BLACK
+        else:
+            self._turn = Piece.C_WHITE
+
+    @property
+    def turn(self):
+        return self._turn
 
     @property
     def squares(self):
