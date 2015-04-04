@@ -179,12 +179,13 @@ class TestBoard(unittest.TestCase):
             self.board.get_square((1, 2)).conduct_move((1, 3)))
         # black pawn 1 forward
         self.assertTrue(
-            self.board.get_square((1, 8)).conduct_move((1, 7)))
-
-        # white pawn backwards fails
-        with self.assertRaises(Exception):
-            self.board.get_square((2, 2)).conduct_move((2, 1))
+            self.board.get_square((1, 7)).conduct_move((1, 6)))
 
         # white pawn 2 forward
         self.assertTrue(
-            self.board.get_square((2, 2)).conduct_move((2, 4)))
+            self.board.get_square((3, 2)).conduct_move((3, 4)))
+
+    def test_illegal_move(self):
+        # white pawn 3 forward fails
+        with self.assertRaises(RuntimeError):
+            self.board.get_square((2, 2)).conduct_move((2, 5))
