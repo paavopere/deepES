@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-
+from operator import sub
 
 class Piece(metaclass=ABCMeta):
     """
@@ -30,10 +30,32 @@ class Piece(metaclass=ABCMeta):
         return "{} {}".format(color_names[self.color], self.__class__.__name__)
 
     def conduct_move(self, square):
+        if not self.move_is_legal(square):
+            raise RuntimeError("Move is not legal.")
+        else:
+            # Empty original square
+            self.board.set_square(None, self.location, forceful=True)
+            # Place self onto the new square
+            self.board.set_square(self, square)
+            return True
+
+    def move_is_legal(self, target_square):
+        if not target_square in self.board.squares:
+            return False
+
+        wanted_move = map(sub, target_square, self.location)
+        if not (wanted_move in self._moves or self.legal_special_move(wanted_move)):
+            return False
+        return True
         raise NotImplementedError
 
-    def move_is_legal(self, square):
-        raise NotImplementedError
+    def legal_special_move(self, move):
+        """
+        Return whether, considering environmental factors, input is a legal
+        special move for this piece. The generic piece returns False; pieces
+        with special moves shall override this.
+        """
+        return False
 
     @property
     def captures(self):
@@ -54,6 +76,10 @@ class Piece(metaclass=ABCMeta):
     @property
     def location(self):
         return self.board.location(self)
+
+    @property
+    def in_turn(self):
+        return self.board.turn == self.color
 
 
 class King(Piece):
