@@ -1,5 +1,5 @@
 from abc import ABCMeta, abstractmethod
-from operator import sub
+from operator import sub, mul, add
 
 class Piece(metaclass=ABCMeta):
     """
@@ -30,7 +30,7 @@ class Piece(metaclass=ABCMeta):
         return "{} {}".format(color_names[self.color], self.__class__.__name__)
 
     def conduct_move(self, square):
-        if not self.move_is_legal(square):
+        if not self.can_move_to_square(square):
             raise RuntimeError("Move is not legal.")
         else:
             # Empty original square
@@ -39,20 +39,46 @@ class Piece(metaclass=ABCMeta):
             self.board.set_square(self, square)
             return True
 
-    def move_is_legal(self, target_square):
+    def can_move_to_square(self, target_square):
         if not target_square in self.board.squares:
             return False
 
-        wanted_move = map(sub, target_square, self.location)
-        if not (wanted_move in self._moves or self.legal_special_move(wanted_move)):
+        wanted_move = tuple(map(sub, target_square, self.location))
+        if not (self.legal_regular_move(wanted_move) or self.legal_special_move(wanted_move)):
             return False
         return True
-        raise NotImplementedError
+
+    def legal_regular_move(self, wanted_move):
+        # Case where we "step once"
+        if wanted_move in self._moves:
+            return True
+
+        # Case where we make an extended move; this is ugly.
+        if self._move_extends:
+            # Hard-coded range for what is the maximum distance we can move
+            for i in range(1, 8):
+                # find the step that we extend
+                for mst in self._moves:
+                    if tuple(map(mul, mst, (i, i))) == wanted_move:
+                        # step found, check if locations in between are free
+                        for j in range(1, i):
+                            loc_in_between = tuple(map(add, self.location, map(mul, mst, (j, j))))
+                            if not self.board.is_free(loc_in_between):
+                                return False
+                        return True
+
+        # Criteria not satisfied
+        return False
 
     def legal_special_move(self, move):
         """
         Return whether, considering environmental factors, input is a legal
-        special move for this piece. The generic piece returns False; pieces
+        special move for this piece.
+
+        Special move is something like double pawn move, en passant, castling,
+        or promotion.
+
+        The generic piece returns False; pieces
         with special moves shall override this.
         """
         return False

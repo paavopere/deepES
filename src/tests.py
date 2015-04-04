@@ -175,15 +175,33 @@ class TestBoard(unittest.TestCase):
 
     def test_some_moves(self):
         # white pawn 1 forward
+        self.assertIsInstance(
+            self.board.get_square((2, 2)), Pawn)
         self.assertTrue(
-            self.board.get_square((1, 2)).conduct_move((1, 3)))
+            self.board.get_square((2, 2)).conduct_move((2, 3)))
         # black pawn 1 forward
+        self.assertIsInstance(
+            self.board.get_square((1, 7)), Pawn)
         self.assertTrue(
             self.board.get_square((1, 7)).conduct_move((1, 6)))
 
-        # white pawn 2 forward
+        # white bishop moves multiple tiles
+        self.assertIsInstance(
+            self.board.get_square((3, 1)), Bishop)
         self.assertTrue(
-            self.board.get_square((3, 2)).conduct_move((3, 4)))
+            self.board.get_square((3, 1)).conduct_move((1, 3)))
+
+        # black pawn 2 forward
+        self.assertIsInstance(
+            self.board.get_square((8, 7)), Pawn)
+        self.assertTrue(
+            self.board.get_square((8, 7)).conduct_move((8, 5)))
+
+        # white pawn 2 forward
+        self.assertIsInstance(
+            self.board.get_square((1, 2)), Pawn)
+        self.assertTrue(
+            self.board.get_square((1, 2)).conduct_move((1, 4)))
 
     def test_illegal_move(self):
         # white pawn 3 forward fails
