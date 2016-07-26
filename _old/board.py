@@ -1,4 +1,4 @@
-from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
+from _old.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
 class Board:
