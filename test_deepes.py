@@ -87,3 +87,9 @@ def test_default_gives_starting_fen():
 
 def test_fen_from_fen_after_e4():
     assert Game(fen=FEN_AFTER_E4).fen() == FEN_AFTER_E4
+
+
+def test_game_equality():
+    game_1 = Game()
+    game_2 = Game()
+    assert game_1 == game_2

@@ -15,6 +15,9 @@ class Game:
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
 
+    def __eq__(self, other):
+        return isinstance(other, self.__class__) and other.fen() == self.fen()
+
     @staticmethod
     def starting_board_array():
         pos = (
