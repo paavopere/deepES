@@ -75,3 +75,15 @@ def test_starting_basic_board():
 
 def test_basic_board_from_fen_after_e4():
     assert Game(fen=FEN_AFTER_E4).basic_board() == BBOARD_AFTER_E4
+
+
+def test_starting_fen_gives_starting_fen():
+    assert Game(fen=STARTING_FEN).fen() == STARTING_FEN
+
+
+def test_default_gives_starting_fen():
+    assert Game().fen() == STARTING_FEN
+
+
+def test_fen_from_fen_after_e4():
+    assert Game(fen=FEN_AFTER_E4).fen() == FEN_AFTER_E4
