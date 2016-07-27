@@ -50,7 +50,7 @@ def test_default_position_repr():
 
 
 def test_init_board_array():
-    assert Position().board_array == STARTING_BOARD_ARRAY
+    assert Position()._board_array == STARTING_BOARD_ARRAY
 
 
 def test_initializes_with_fen():
@@ -58,11 +58,11 @@ def test_initializes_with_fen():
 
 
 def test_starting_fen_gives_starting_board_array():
-    assert Position(fen=STARTING_FEN).board_array == STARTING_BOARD_ARRAY
+    assert Position(fen=STARTING_FEN)._board_array == STARTING_BOARD_ARRAY
 
 
 def test_board_array_from_fen_after_e4():
-    assert Position(fen=FEN_AFTER_E4).board_array == BOARD_ARRAY_AFTER_E4
+    assert Position(fen=FEN_AFTER_E4)._board_array == BOARD_ARRAY_AFTER_E4
 
 
 def test_starting_basic_board():

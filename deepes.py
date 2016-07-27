@@ -4,10 +4,10 @@ class Position:
         if fen is None:
             fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
-        self.board_array = self.board_array_from_fen_pieces(fen.split(' ')[0])
+        self._board_array = self.board_array_from_fen_pieces(fen.split(' ')[0])
 
-        (self.active_color, self.castling_availability, self.en_passant_target,
-         self.halfmove_clock, self.fullmove_number) = fen.split(' ')[1:]
+        (self._active_color, self._castling_availability, self._en_passant_target,
+         self._halfmove_clock, self._fullmove_number) = fen.split(' ')[1:]
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
@@ -55,9 +55,9 @@ class Position:
         return fen_pieces
 
     def basic_board(self):
-        return '\n'.join(''.join(piece for piece in rank) for rank in self.board_array)
+        return '\n'.join(''.join(piece for piece in rank) for rank in self._board_array)
 
     def fen(self):
-        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self.board_array), self.active_color,
-                                          self.castling_availability, self.en_passant_target, self.halfmove_clock,
-                                          self.fullmove_number)
+        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color,
+                                          self._castling_availability, self._en_passant_target, self._halfmove_clock,
+                                          self._fullmove_number)
