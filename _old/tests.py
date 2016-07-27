@@ -1,6 +1,6 @@
 import unittest
-from src.board import Board
-from src.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
+from _old.board import Board
+from _old.pieces import King, Queen, Rook, Bishop, Knight, Pawn, Piece
 
 
 class TestPieces(unittest.TestCase):
