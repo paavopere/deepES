@@ -55,9 +55,11 @@ class Position:
         return fen_pieces
 
     def basic_board(self):
+        """Human-readable basic visualization of the board at this position"""
         return '\n'.join(''.join(piece for piece in rank) for rank in self._board_array)
 
     def fen(self):
+        """Forsyth-Edwards notation string of the position"""
         return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color,
                                           self._castling_availability, self._en_passant_target, self._halfmove_clock,
                                           self._fullmove_number)
