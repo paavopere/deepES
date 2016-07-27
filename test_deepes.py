@@ -75,7 +75,3 @@ def test_starting_basic_board():
 
 def test_basic_board_from_fen_after_e4():
     assert Game(fen=FEN_AFTER_E4).basic_board() == BBOARD_AFTER_E4
-
-
-if __name__ == '__main__':
-    print(STARTING_BBOARD)
