@@ -1,7 +1,7 @@
 from deepes import Game
 
 
-STARTING_POSITION = (
+STARTING_BOARD_ARRAY = (
     ('r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'),
     ('p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'),
     ('.', '.', '.', '.', '.', '.', '.', '.'),
@@ -11,7 +11,7 @@ STARTING_POSITION = (
     ('P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'),
     ('R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'),
 )
-POSITION_AFTER_E4 = (
+BOARD_ARRAY_AFTER_E4 = (
     ('r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'),
     ('p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'),
     ('.', '.', '.', '.', '.', '.', '.', '.'),
@@ -49,24 +49,24 @@ def test_default_game_repr():
     assert repr(Game()) == 'Game()'
 
 
-def test_starting_position():
-    assert Game.starting_position() == STARTING_POSITION
+def test_starting_board_array():
+    assert Game.starting_board_array() == STARTING_BOARD_ARRAY
 
 
-def test_init_position():
-    assert Game().position == STARTING_POSITION
+def test_init_board_array():
+    assert Game().board_array == STARTING_BOARD_ARRAY
 
 
 def test_initializes_with_fen():
     assert Game(fen=STARTING_FEN)
 
 
-def test_starting_fen_gives_starting_position():
-    assert Game(fen=STARTING_FEN).position == STARTING_POSITION
+def test_starting_fen_gives_starting_board_array():
+    assert Game(fen=STARTING_FEN).board_array == STARTING_BOARD_ARRAY
 
 
-def test_position_from_fen_after_e4():
-    assert Game(fen=FEN_AFTER_E4).position == POSITION_AFTER_E4
+def test_board_array_from_fen_after_e4():
+    assert Game(fen=FEN_AFTER_E4).board_array == BOARD_ARRAY_AFTER_E4
 
 
 def test_starting_basic_board():

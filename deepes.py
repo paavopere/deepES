@@ -1,14 +1,14 @@
 
 class Game:
     def __init__(self, fen=None):
-        self.position = self.starting_position()
+        self.board_array = self.starting_board_array()
         self.active_color = 'w'
         self.castling_availability = 'KQkq'
         self.en_passant_target = '-'
         self.halfmove_clock = '0'
         self.fullmove_number = '1'
         if fen is not None:
-            self.position = self.position_from_fen(fen)
+            self.board_array = self.board_array_from_fen(fen)
             (self.active_color, self.castling_availability, self.en_passant_target,
              self.halfmove_clock, self.fullmove_number) = fen.split(' ')[1:]
 
@@ -16,7 +16,7 @@ class Game:
         return '{}()'.format(self.__class__.__name__)
 
     @staticmethod
-    def starting_position():
+    def starting_board_array():
         pos = (
             tuple(c for c in 'rnbqkbnr'),
             ('p',) * 8,
@@ -30,7 +30,7 @@ class Game:
         return pos
 
     @staticmethod
-    def position_from_fen(fen):
+    def board_array_from_fen(fen):
         """
         According to '1. Piece placement' in
         https://en.wikipedia.org/w/index.php?title=Forsyth%E2%80%93Edwards_Notation&oldid=707127024#Definition
@@ -51,11 +51,11 @@ class Game:
         return tuple(position)
 
     def basic_board(self):
-        return '\n'.join(''.join(piece for piece in rank) for rank in self.position)
+        return '\n'.join(''.join(piece for piece in rank) for rank in self.board_array)
 
     def fen(self):
         fen_pieces = ''
-        for rank in self.position:
+        for rank in self.board_array:
             empties = 0
             for square in rank:
                 if square == '.':
