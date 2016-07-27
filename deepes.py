@@ -1,36 +1,17 @@
 
 class Position:
     def __init__(self, fen=None):
-        self.board_array = self.starting_board_array()
-        self.active_color = 'w'
-        self.castling_availability = 'KQkq'
-        self.en_passant_target = '-'
-        self.halfmove_clock = '0'
-        self.fullmove_number = '1'
-        if fen is not None:
-            self.board_array = self.board_array_from_fen(fen)
-            (self.active_color, self.castling_availability, self.en_passant_target,
-             self.halfmove_clock, self.fullmove_number) = fen.split(' ')[1:]
+        if fen is None:
+            fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+        self.board_array = self.board_array_from_fen(fen)
+        (self.active_color, self.castling_availability, self.en_passant_target,
+         self.halfmove_clock, self.fullmove_number) = fen.split(' ')[1:]
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
 
     def __eq__(self, other):
         return isinstance(other, self.__class__) and other.fen() == self.fen()
-
-    @staticmethod
-    def starting_board_array():
-        pos = (
-            tuple(c for c in 'rnbqkbnr'),
-            ('p',) * 8,
-            ('.',) * 8,
-            ('.',) * 8,
-            ('.',) * 8,
-            ('.',) * 8,
-            ('P',) * 8,
-            tuple(c for c in 'RNBQKBNR')
-        )
-        return pos
 
     @staticmethod
     def board_array_from_fen(fen):

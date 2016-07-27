@@ -49,10 +49,6 @@ def test_default_position_repr():
     assert repr(Position()) == 'Position({})'.format(repr(STARTING_FEN))
 
 
-def test_starting_board_array():
-    assert Position.starting_board_array() == STARTING_BOARD_ARRAY
-
-
 def test_init_board_array():
     assert Position().board_array == STARTING_BOARD_ARRAY
 
