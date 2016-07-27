@@ -1,5 +1,5 @@
 
-class Game:
+class Position:
     def __init__(self, fen=None):
         self.board_array = self.starting_board_array()
         self.active_color = 'w'
