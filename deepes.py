@@ -13,7 +13,7 @@ class Game:
              self.halfmove_clock, self.fullmove_number) = fen.split(' ')[1:]
 
     def __repr__(self):
-        return '{}()'.format(self.__class__.__name__)
+        return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
 
     @staticmethod
     def starting_board_array():

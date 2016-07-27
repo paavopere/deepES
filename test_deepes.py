@@ -46,7 +46,7 @@ def test_game_initializes():
 
 
 def test_default_game_repr():
-    assert repr(Game()) == 'Game()'
+    assert repr(Game()) == 'Game({})'.format(repr(STARTING_FEN))
 
 
 def test_starting_board_array():
