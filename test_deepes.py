@@ -1,5 +1,6 @@
 from deepes import Position
-
+import pytest
+xfail = pytest.mark.xfail
 
 STARTING_BOARD_ARRAY = (
     ('r', 'n', 'b', 'q', 'k', 'b', 'n', 'r'),
@@ -23,6 +24,7 @@ BOARD_ARRAY_AFTER_E4 = (
 )
 STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 FEN_AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
+FEN_AFTER_E3 = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
 STARTING_BBOARD = ('rnbqkbnr\n'
                    'pppppppp\n'
                    '........\n'
@@ -92,12 +94,17 @@ def test_position_equality():
 
 
 def test_can_move():
-    assert Position().move('e4')
+    assert Position().move('e3')
 
 
-def test_fen_after_move_e4():
-    assert Position().move('e4').fen() == FEN_AFTER_E4
+def test_fen_after_move_e3():
+    assert Position().move('e3').fen() == FEN_AFTER_E3
 
 
-def test_equality_after_move_e4():
-    assert Position().move('e4') == Position(FEN_AFTER_E4)
+def test_equality_after_move_e3():
+    assert Position().move('e3') == Position(FEN_AFTER_E3)
+
+
+def test_fen_after_moves_a3_a6_a4_a5():
+    expected = 'rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 3'
+    assert Position().move('a3').move('a6').move('a4').move('a5').fen() == expected
