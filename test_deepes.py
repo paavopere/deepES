@@ -89,3 +89,15 @@ def test_position_equality():
     position_1 = Position()
     position_2 = Position()
     assert position_1 == position_2
+
+
+def test_can_move():
+    assert Position().move('e4')
+
+
+def test_fen_after_move_e4():
+    assert Position().move('e4').fen() == FEN_AFTER_E4
+
+
+def test_equality_after_move_e4():
+    assert Position().move('e4') == Position(FEN_AFTER_E4)
