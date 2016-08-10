@@ -90,14 +90,18 @@ class Position:
                     orig_file_index, orig_rank_index = file_index, rank_index + 1
                 elif self._board_array[rank_index + 2][file_index] == 'P':  # pawn two behind target
                     orig_file_index, orig_rank_index = file_index, rank_index + 2
+                    if '87654321'[orig_rank_index] != '2':  # unexpected origin for pawn that moves 2
+                        raise Exception('Illegal move')
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
                 else:
                     raise Exception('Illegal move')
             elif self._active_color == 'b':
-                if self._board_array[rank_index - 1][file_index] == 'p':
+                if self._board_array[rank_index - 1][file_index] == 'p':  # pawn one behind target
                     orig_file_index, orig_rank_index = file_index, rank_index - 1
                 elif self._board_array[rank_index - 2][file_index] == 'p':  # pawn two behind target
                     orig_file_index, orig_rank_index = file_index, rank_index - 2
+                    if '87654321'[orig_rank_index] != '7':  # unexpected origin for pawn that moves 2
+                        raise Exception('Illegal move')
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index - 1]
                 else:
                     raise Exception('Illegal move')
