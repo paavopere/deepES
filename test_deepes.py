@@ -151,3 +151,10 @@ def test_pawn_cannot_advance_into_occupied_square():
     with pytest.raises(Exception) as excinfo:
         pos.move('e5')
     assert 'Illegal move' in str(excinfo.value)
+
+
+def test_pawn_cannot_regress():
+    pos = Position().move('e4').move('e5')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('e3')
+    assert 'Illegal move' in str(excinfo.value)
