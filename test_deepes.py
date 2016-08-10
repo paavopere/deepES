@@ -125,6 +125,10 @@ def test_pawn_cannot_advance_three():
         Position().move('a5')
     assert str(excinfo.value) == 'Illegal move'
 
+    with pytest.raises(Exception) as excinfo:
+        Position().move('a4').move('c4')
+    assert str(excinfo.value) == 'Illegal move'
+
 
 @xfail
 def test_pawn_cannot_advance_two_after_advancing():
