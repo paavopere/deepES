@@ -120,7 +120,6 @@ def test_pawns_can_initially_advance_two():
     assert pos.fen() == expected_fen
 
 
-@xfail
 def test_pawn_cannot_advance_three():
     with pytest.raises(Exception) as excinfo:
         Position().move('a5')

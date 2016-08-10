@@ -91,12 +91,16 @@ class Position:
                 elif self._board_array[rank_index + 2][file_index] == 'P':  # pawn two behind target
                     orig_file_index, orig_rank_index = file_index, rank_index + 2
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
+                else:
+                    raise Exception('Illegal move')
             elif self._active_color == 'b':
                 if self._board_array[rank_index - 1][file_index] == 'p':
                     orig_file_index, orig_rank_index = file_index, rank_index - 1
                 elif self._board_array[rank_index - 2][file_index] == 'p':  # pawn two behind target
                     orig_file_index, orig_rank_index = file_index, rank_index - 2
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index - 1]
+                else:
+                    raise Exception('Illegal move')
 
             # create new position
             new_board = [list(x) for x in self._board_array]
