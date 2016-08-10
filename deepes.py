@@ -83,6 +83,12 @@ class Position:
         file_index = list('abcdefgh').index(target[0])
         rank_index = list('87654321').index(target[1])
 
+        if 'x' in move_str:
+            raise NotImplementedError('captures not implemented')
+        else:
+            if self._board_array[rank_index][file_index] != '.':
+                raise Exception('Illegal move: target occupied')
+
         # find original square
         if piece == 'P':
             if self._active_color == 'w':

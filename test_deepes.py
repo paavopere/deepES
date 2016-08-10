@@ -146,6 +146,8 @@ def test_pawn_cannot_advance_two_after_advancing():
     assert str(excinfo.value) == 'Illegal move'
 
 
-@xfail
 def test_pawn_cannot_advance_into_occupied_square():
-    assert False
+    pos = Position().move('e4').move('e5')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('e5')
+    assert 'Illegal move' in str(excinfo.value)
