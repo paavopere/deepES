@@ -66,6 +66,8 @@ class Position:
                                           self._fullmove_number)
 
     def move(self, move_str):
+        new_en_passant_target = None
+
         # get moved piece
         piece = move_str[0] if move_str[0] in 'KQRBNP' else 'P'
 
@@ -84,15 +86,17 @@ class Position:
         # find original square
         if piece == 'P':
             if self._active_color == 'w':
-                if self._board_array[rank_index + 1][file_index] == 'P':
+                if self._board_array[rank_index + 1][file_index] == 'P':  # pawn one behind target
                     orig_file_index, orig_rank_index = file_index, rank_index + 1
-                else:
-                    raise NotImplementedError('only implemented pawn move is one forward')
+                elif self._board_array[rank_index + 2][file_index] == 'P':  # pawn two behind target
+                    orig_file_index, orig_rank_index = file_index, rank_index + 2
+                    new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
             elif self._active_color == 'b':
                 if self._board_array[rank_index - 1][file_index] == 'p':
                     orig_file_index, orig_rank_index = file_index, rank_index - 1
-                else:
-                    raise NotImplementedError('only implemented pawn move is one forward')
+                elif self._board_array[rank_index - 2][file_index] == 'p':  # pawn two behind target
+                    orig_file_index, orig_rank_index = file_index, rank_index - 2
+                    new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index - 1]
 
             # create new position
             new_board = [list(x) for x in self._board_array]
@@ -101,7 +105,7 @@ class Position:
             new_fen_pieces = self.fen_pieces_from_board_array(new_board)
             new_active_color = 'b' if self._active_color == 'w' else 'w'
             new_castling_availability = self._castling_availability
-            new_en_passant_target = self._en_passant_target
+            new_en_passant_target = new_en_passant_target or self._en_passant_target
             new_halfmove_clock = 0
             new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
             new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,

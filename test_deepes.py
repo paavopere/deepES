@@ -105,6 +105,33 @@ def test_equality_after_move_e3():
     assert Position().move('e3') == Position(FEN_AFTER_E3)
 
 
-def test_fen_after_moves_a3_a6_a4_a5():
+def test_both_pawns_can_advance():
     expected = 'rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq - 0 3'
     assert Position().move('a3').move('a6').move('a4').move('a5').fen() == expected
+
+
+def test_pawns_can_initially_advance_two():
+    assert Position().move('e4').fen() == FEN_AFTER_E4
+
+    pos = Position()
+    pos = pos.move('a4')
+    pos = pos.move('a5')
+    expected_fen = 'rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq a6 0 2'
+    assert pos.fen() == expected_fen
+
+
+@xfail
+def test_pawn_cannot_advance_three():
+    with pytest.raises(Exception) as excinfo:
+        Position().move('a5')
+    assert str(excinfo.value) == 'Illegal move'
+
+
+@xfail
+def test_pawn_cannot_advance_two_after_advancing():
+    assert False
+
+
+@xfail
+def test_pawn_cannot_advance_into_occupied_square():
+    assert False
