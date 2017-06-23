@@ -96,6 +96,8 @@ class Position:
         # find original square
         if piece == 'P':
             if self._active_color == 'w':
+                if rank_index == 0:
+                    raise NotImplementedError('Promotion not implemented (white)')
                 if self._board_array[rank_index + 1][file_index] == 'P':  # pawn one behind target
                     orig_file_index, orig_rank_index = file_index, rank_index + 1
                 elif self._board_array[rank_index + 2][file_index] == 'P':  # pawn two behind target
@@ -106,6 +108,8 @@ class Position:
                 else:
                     raise Exception('Illegal move')
             elif self._active_color == 'b':
+                if rank_index == 7:
+                    raise NotImplementedError('Promotion not implemented (black)')
                 if self._board_array[rank_index - 1][file_index] == 'p':  # pawn one behind target
                     orig_file_index, orig_rank_index = file_index, rank_index - 1
                 elif self._board_array[rank_index - 2][file_index] == 'p':  # pawn two behind target
