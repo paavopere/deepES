@@ -1,5 +1,6 @@
 from itertools import product
 
+
 class Position:
     def __init__(self, fen=None):
         if fen is None:
@@ -9,6 +10,9 @@ class Position:
         self._active_color, self._castling_availability, self._en_passant_target = fen.split(' ')[1:4]
         self._halfmove_clock = int(fen.split(' ')[4])
         self._fullmove_number = int(fen.split(' ')[5])
+
+        if self._active_color not in ('w', 'b'):
+            raise ValueError('Unexpected active color: {}'.format(self._active_color))
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
