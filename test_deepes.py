@@ -166,12 +166,18 @@ def test_cannot_initialize_with_unexpected_active_color():
     assert 'Unexpected active color' in str(excinfo.value)
 
 
-# todo: replace eventually
-def test_cannot_promote_yet():
-    with pytest.raises(NotImplementedError) as excinfo:
-        Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0').move('a8')
-    with pytest.raises(NotImplementedError) as excinfo:
-        Position('3qk3/P7/8/8/8/8/7p/3QK3 b - - 0 0').move('h1')
+@xfail
+def test_promote():
+    pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0')
+    pos = pos.move('a8=Q')
+    assert pos.fen() == 'Q2qk3/8/8/8/8/8/7p/3QK3 b - - 1 1'
+
+
+@xfail
+def test_promote_to_check():
+    pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 b - - 0 0')
+    pos = pos.move('h1=Q+')
+    assert pos.fen() == '3qk3/P7/8/8/8/8/8/3QK2q w - - 1 2'
 
 
 @xfail
