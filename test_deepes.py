@@ -180,15 +180,21 @@ def test_promote_to_check():
     assert pos.fen() == '3qk3/P7/8/8/8/8/8/3QK2q w - - 1 2'
 
 
-@xfail
 def test_rook_move():
-    pos = Position('rnbqkbn1/ppppppp1/7r/7p/7P/7R/PPPPPPP1/RNBQKBN1 w Qq - 2 3')
-    pos = pos.move('Ra3')
-    assert pos.fen() == 'rnbqkbn1/ppppppp1/7r/7p/7P/R7/PPPPPPP1/RNBQKBN1 b Qq - 3 3'
+    pos = Position('rnbqkbnr/ppppp3/8/5ppp/7P/R7/PPPPPPP1/RNBQKBN1 w Qkq f6 0 4')
+    pos = pos.move('Rd3')
+    assert pos.fen() == 'rnbqkbnr/ppppp3/8/5ppp/7P/3R4/PPPPPPP1/RNBQKBN1 b Qkq - 1 4'
+
+
+def test_rook_move2():
+    pos = Position('8/8/1K1k3r/8/4r3/8/8/R6R w - - 0 32')
+    pos = pos.move('Rh4')
+    assert pos.fen() == '8/8/1K1k3r/8/4r2R/8/8/R7 b - - 1 32'
 
 
 @xfail
-def test_rook_move2():
-    pos = Position('rnbqkbn1/ppppppp1/7r/7p/7P/R7/PPPPPPP1/RNBQKBN1 b Qq - 3 3')
-    pos = pos.move('Re6').move('Ra6').move('Re3')
-    assert pos.fen() == 'rnbqkbn1/ppppppp1/R7/7p/7P/4r3/PPPPPPP1/RNBQKBN1 w Qq - 6 5'
+def test_rook_move_no_jump_over_piece():
+    pos = Position('8/8/1K1kr3/8/4r2R/8/8/R7 w - - 2 33')
+    with pytest.raises(Exception) as excinfo:
+        pos = pos.move('Rb4')
+    assert 'Illegal move' in str(excinfo.value)

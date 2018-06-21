@@ -137,10 +137,40 @@ class Position:
             return Position(fen=new_fen)
 
         elif piece == 'R':
+            orig_file_index = orig_rank_index = None
+
             if self._active_color == 'w':
-                return self
+                # find rook on same rank
+                for fi, sq in enumerate(self._board_array[rank_index]):
+                    if sq == 'R':
+                        orig_file_index, orig_rank_index = fi, rank_index
+                # find rook on same file
+                for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
+                    if sq == 'R':
+                        orig_file_index, orig_rank_index = file_index, ri
             elif self._active_color == 'b':
-                return self
+                raise NotImplementedError('moving black rooks not implemented')
+
+            new_board = [list(x) for x in self._board_array]
+            new_board[orig_rank_index][orig_file_index] = '.'
+            new_board[rank_index][file_index] = 'R' if self._active_color == 'w' else 'r'
+            new_fen_pieces = self.fen_pieces_from_board_array(new_board)
+            new_active_color = 'b' if self._active_color == 'w' else 'w'
+            new_castling_availability = self._castling_availability
+            new_en_passant_target = '-'
+            new_halfmove_clock = self._halfmove_clock + 1
+            new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
+            new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
+                                                 new_en_passant_target, new_halfmove_clock, new_fullmove_number)
+            return Position(fen=new_fen)
 
         else:
             raise NotImplementedError('moving non-pawns not implemented')
+
+
+    def pieces_that_can_move_here(self, piece, target):
+        file_index = list('abcdefgh').index(target[0])
+        rank_index = list('87654321').index(target[1])
+
+        if piece == 'R':
+            pass
