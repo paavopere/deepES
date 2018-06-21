@@ -95,6 +95,8 @@ class Position:
 
         # find original square
         if piece == 'P':
+            orig_file_index = orig_rank_index = None
+
             if self._active_color == 'w':
                 if rank_index == 0:
                     raise NotImplementedError('Promotion not implemented (white)')
@@ -133,6 +135,12 @@ class Position:
             new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
                                                  new_en_passant_target, new_halfmove_clock, new_fullmove_number)
             return Position(fen=new_fen)
+
+        elif piece == 'R':
+            if self._active_color == 'w':
+                return self
+            elif self._active_color == 'b':
+                return self
 
         else:
             raise NotImplementedError('moving non-pawns not implemented')
