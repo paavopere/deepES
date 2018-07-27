@@ -71,6 +71,8 @@ class Position:
 
     def move(self, move_str):
         new_en_passant_target = None
+        reset_halfmove_clock = False
+        remove_castling_availability = None
 
         # get moved piece
         piece = move_str[0] if move_str[0] in 'KQRBNP' else 'P'
@@ -122,19 +124,7 @@ class Position:
                 else:
                     raise Exception('Illegal move')
 
-            # create new position
-            new_board = [list(x) for x in self._board_array]
-            new_board[orig_rank_index][orig_file_index] = '.'
-            new_board[rank_index][file_index] = 'P' if self._active_color == 'w' else 'p'
-            new_fen_pieces = self.fen_pieces_from_board_array(new_board)
-            new_active_color = 'b' if self._active_color == 'w' else 'w'
-            new_castling_availability = self._castling_availability
-            new_en_passant_target = new_en_passant_target or self._en_passant_target
-            new_halfmove_clock = 0
-            new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
-            new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
-                                                 new_en_passant_target, new_halfmove_clock, new_fullmove_number)
-            return Position(fen=new_fen)
+            reset_halfmove_clock = True
 
         elif piece == 'R':
             orig_file_index = orig_rank_index = None
@@ -151,22 +141,34 @@ class Position:
             elif self._active_color == 'b':
                 raise NotImplementedError('moving black rooks not implemented')
 
-            new_board = [list(x) for x in self._board_array]
-            new_board[orig_rank_index][orig_file_index] = '.'
-            new_board[rank_index][file_index] = 'R' if self._active_color == 'w' else 'r'
-            new_fen_pieces = self.fen_pieces_from_board_array(new_board)
-            new_active_color = 'b' if self._active_color == 'w' else 'w'
-            new_castling_availability = self._castling_availability
-            new_en_passant_target = '-'
-            new_halfmove_clock = self._halfmove_clock + 1
-            new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
-            new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
-                                                 new_en_passant_target, new_halfmove_clock, new_fullmove_number)
-            return Position(fen=new_fen)
-
         else:
             raise NotImplementedError('moving non-pawns not implemented')
 
+        # create new position
+
+        new_board = [list(x) for x in self._board_array]
+        # move piece
+        new_board[orig_rank_index][orig_file_index] = '.'
+        new_board[rank_index][file_index] = piece.upper() if self._active_color == 'w' else piece.lower()
+        # read pieces to FEN
+        new_fen_pieces = self.fen_pieces_from_board_array(new_board)
+        # switch color
+        new_active_color = 'b' if self._active_color == 'w' else 'w'
+        # clear en passant if we didn't create new target
+        new_en_passant_target = new_en_passant_target or '-'
+        # increment numbers
+        new_halfmove_clock = 0 if reset_halfmove_clock else self._halfmove_clock + 1
+        new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
+
+        if not remove_castling_availability:
+            new_castling_availability = self._castling_availability
+        else:
+            raise NotImplementedError('Yet to figure out how castling is invalidated')
+
+        # construct new FEN and create Position
+        new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
+                                             new_en_passant_target, new_halfmove_clock, new_fullmove_number)
+        return Position(fen=new_fen)
 
     def pieces_that_can_move_here(self, piece, target):
         file_index = list('abcdefgh').index(target[0])
