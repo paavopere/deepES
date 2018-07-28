@@ -213,4 +213,11 @@ def test_rook_move_no_jump_over_piece():
 
 def test_can_move_here_initial():
     pos = Position()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
     assert pos.pieces_that_can_move_here(Piece.PAWN, 'e4', Color.WHITE) == ('e2',)
+
+
+def test_can_move_here_initial_2():
+    pos = Position()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h6', Color.BLACK) == ('h7',)
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h5', Color.BLACK) == ('h7',)
