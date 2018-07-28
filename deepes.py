@@ -230,13 +230,15 @@ class Position:
                     for c in candidates_xy:
                         if c[0] == target_xy[0] and c[1] == target_xy[1] + 1:
                             actually_can.append(c)
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] + 2 and c[1] == 6:
+                        if (c[0] == target_xy[0] and c[1] == target_xy[1] + 2 and c[1] == 6
+                                and self._board_array[c[1] - 1][c[0]] == '.'):
                             actually_can.append(c)
                 if color == Color.BLACK:
                     for c in candidates_xy:
                         if c[0] == target_xy[0] and c[1] == target_xy[1] - 1:
                             actually_can.append(c)
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] - 2 and c[1] == 1:
+                        if (c[0] == target_xy[0] and c[1] == target_xy[1] - 2 and c[1] == 1
+                                and self._board_array[c[1] + 1][c[0]] == '.'):
                             actually_can.append(c)
 
         return tuple(self.square_xy_to_str(*xy) for xy in actually_can)

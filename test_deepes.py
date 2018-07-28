@@ -221,3 +221,8 @@ def test_can_move_here_initial_2():
     pos = Position()
     assert pos.pieces_that_can_move_here(Piece.PAWN, 'h6', Color.BLACK) == ('h7',)
     assert pos.pieces_that_can_move_here(Piece.PAWN, 'h5', Color.BLACK) == ('h7',)
+
+def test_can_move_pawn_cannot_jump():
+    pos = Position('rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2')
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f4', Color.WHITE) == ()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f5', Color.BLACK) == ()
