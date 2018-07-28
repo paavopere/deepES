@@ -1,4 +1,19 @@
 from itertools import product
+from enum import Enum
+
+
+class Piece(Enum):
+    KING = 'K'
+    QUEEN = 'Q'
+    ROOK = 'R'
+    BISHOP = 'B'
+    KNIGHT = 'N'
+    PAWN = 'P'
+
+
+class Color(Enum):
+    WHITE = 'w'
+    BLACK = 'b'
 
 
 class Position:
@@ -7,12 +22,16 @@ class Position:
             fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
         self._board_array = self.board_array_from_fen_pieces(fen.split(' ')[0])
-        self._active_color, self._castling_availability, self._en_passant_target = fen.split(' ')[1:4]
+
+        fen_color = fen.split(' ')[1]
+        try:
+            self._active_color = {'w': Color.WHITE, 'b': Color.BLACK}[fen_color]
+        except KeyError:
+            raise KeyError('Unexpected active color {}'.format(fen_color))
+
+        self._castling_availability, self._en_passant_target = fen.split(' ')[2:4]
         self._halfmove_clock = int(fen.split(' ')[4])
         self._fullmove_number = int(fen.split(' ')[5])
-
-        if self._active_color not in ('w', 'b'):
-            raise ValueError('Unexpected active color: {}'.format(self._active_color))
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
@@ -65,12 +84,14 @@ class Position:
 
     def fen(self):
         """Forsyth-Edwards notation string of the position"""
-        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color,
+        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color.value,
                                           self._castling_availability, self._en_passant_target, self._halfmove_clock,
                                           self._fullmove_number)
 
     def move(self, move_str):
         new_en_passant_target = None
+        reset_halfmove_clock = False
+        remove_castling_availability = None
 
         # get moved piece
         piece = move_str[0] if move_str[0] in 'KQRBNP' else 'P'
@@ -84,8 +105,7 @@ class Position:
                 break
 
         # target indices
-        file_index = list('abcdefgh').index(target[0])
-        rank_index = list('87654321').index(target[1])
+        file_index, rank_index = self.square_str_to_xy(target)
 
         if 'x' in move_str:
             raise NotImplementedError('captures not implemented')
@@ -97,7 +117,7 @@ class Position:
         if piece == 'P':
             orig_file_index = orig_rank_index = None
 
-            if self._active_color == 'w':
+            if self._active_color == Color.WHITE:
                 if rank_index == 0:
                     raise NotImplementedError('Promotion not implemented (white)')
                 if self._board_array[rank_index + 1][file_index] == 'P':  # pawn one behind target
@@ -109,7 +129,7 @@ class Position:
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
                 else:
                     raise Exception('Illegal move')
-            elif self._active_color == 'b':
+            elif self._active_color == Color.BLACK:
                 if rank_index == 7:
                     raise NotImplementedError('Promotion not implemented (black)')
                 if self._board_array[rank_index - 1][file_index] == 'p':  # pawn one behind target
@@ -122,55 +142,110 @@ class Position:
                 else:
                     raise Exception('Illegal move')
 
-            # create new position
-            new_board = [list(x) for x in self._board_array]
-            new_board[orig_rank_index][orig_file_index] = '.'
-            new_board[rank_index][file_index] = 'P' if self._active_color == 'w' else 'p'
-            new_fen_pieces = self.fen_pieces_from_board_array(new_board)
-            new_active_color = 'b' if self._active_color == 'w' else 'w'
-            new_castling_availability = self._castling_availability
-            new_en_passant_target = new_en_passant_target or self._en_passant_target
-            new_halfmove_clock = 0
-            new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
-            new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
-                                                 new_en_passant_target, new_halfmove_clock, new_fullmove_number)
-            return Position(fen=new_fen)
+            reset_halfmove_clock = True
 
         elif piece == 'R':
             orig_file_index = orig_rank_index = None
 
-            if self._active_color == 'w':
-                # find rook on same rank
-                for fi, sq in enumerate(self._board_array[rank_index]):
-                    if sq == 'R':
-                        orig_file_index, orig_rank_index = fi, rank_index
-                # find rook on same file
-                for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
-                    if sq == 'R':
-                        orig_file_index, orig_rank_index = file_index, ri
-            elif self._active_color == 'b':
-                raise NotImplementedError('moving black rooks not implemented')
+            # find rook on same rank
+            for fi, sq in enumerate(self._board_array[rank_index]):
+                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
+                    orig_file_index, orig_rank_index = fi, rank_index
 
-            new_board = [list(x) for x in self._board_array]
-            new_board[orig_rank_index][orig_file_index] = '.'
-            new_board[rank_index][file_index] = 'R' if self._active_color == 'w' else 'r'
-            new_fen_pieces = self.fen_pieces_from_board_array(new_board)
-            new_active_color = 'b' if self._active_color == 'w' else 'w'
-            new_castling_availability = self._castling_availability
-            new_en_passant_target = '-'
-            new_halfmove_clock = self._halfmove_clock + 1
-            new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
-            new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
-                                                 new_en_passant_target, new_halfmove_clock, new_fullmove_number)
-            return Position(fen=new_fen)
+            # find rook on same file
+            for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
+                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
+                    orig_file_index, orig_rank_index = file_index, ri
 
         else:
             raise NotImplementedError('moving non-pawns not implemented')
 
+        # create new position
 
-    def pieces_that_can_move_here(self, piece, target):
-        file_index = list('abcdefgh').index(target[0])
-        rank_index = list('87654321').index(target[1])
+        new_board = [list(x) for x in self._board_array]
+        # move piece
+        new_board[orig_rank_index][orig_file_index] = '.'
+        new_board[rank_index][file_index] = piece.upper() if self._active_color == Color.WHITE else piece.lower()
+        # read pieces to FEN
+        new_fen_pieces = self.fen_pieces_from_board_array(new_board)
+        # switch color
+        new_active_color = 'b' if self._active_color == Color.WHITE else 'w'
+        # clear en passant if we didn't create new target
+        new_en_passant_target = new_en_passant_target or '-'
+        # increment numbers
+        new_halfmove_clock = 0 if reset_halfmove_clock else self._halfmove_clock + 1
+        new_fullmove_number = self._fullmove_number if self._active_color == Color.WHITE else self._fullmove_number + 1
 
-        if piece == 'R':
+        if not remove_castling_availability:
+            new_castling_availability = self._castling_availability
+        else:
+            raise NotImplementedError('Yet to figure out how castling is invalidated')
+
+        # construct new FEN and create Position
+        new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
+                                             new_en_passant_target, new_halfmove_clock, new_fullmove_number)
+        return Position(fen=new_fen)
+
+
+    @staticmethod
+    def square_str_to_xy(square_str):
+        """
+        >>> Position.square_str_to_xy('a1')
+        (0, 7)
+        """
+        return list('abcdefgh').index(square_str[0]), list('87654321').index(square_str[1])
+
+    @staticmethod
+    def square_xy_to_str(x, y):
+        """
+        >>> Position.square_xy_to_str(7, 3)
+        'h5'
+        """
+        return 'abcdefgh'[x] + '87654321'[y]
+
+    def find_pieces_xy(self, piece: Piece, color: Color) -> tuple:
+        """
+        >>> Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
+        ((2, 7), (5, 7))
+        """
+        char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
+        return tuple((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
+
+    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color):
+        """Current locations of pieces that can move to target."""
+        target_xy = self.square_str_to_xy(target)
+        candidates_xy = self.find_pieces_xy(piece, color)
+
+        actually_can = []
+        if piece == Piece.KING:
+            raise NotImplementedError
+        elif piece == Piece.QUEEN:
+            raise NotImplementedError
+        elif piece == Piece.ROOK:
             pass
+        elif piece == Piece.BISHOP:
+            raise NotImplementedError
+        elif piece == Piece.KNIGHT:
+            raise NotImplementedError
+        elif piece == Piece.PAWN:
+            if self._board_array[target_xy[1]][target_xy[0]] == '.':
+                if color == Color.WHITE:
+                    for c in candidates_xy:
+                        if c[0] == target_xy[0] and c[1] == target_xy[1] + 1:
+                            actually_can.append(c)
+                        if (c[0] == target_xy[0] and c[1] == target_xy[1] + 2 and c[1] == 6
+                                and self._board_array[c[1] - 1][c[0]] == '.'):
+                            actually_can.append(c)
+                if color == Color.BLACK:
+                    for c in candidates_xy:
+                        if c[0] == target_xy[0] and c[1] == target_xy[1] - 1:
+                            actually_can.append(c)
+                        if (c[0] == target_xy[0] and c[1] == target_xy[1] - 2 and c[1] == 1
+                                and self._board_array[c[1] + 1][c[0]] == '.'):
+                            actually_can.append(c)
+
+        return tuple(self.square_xy_to_str(*xy) for xy in actually_can)
+
+
+if __name__ == '__main__':
+    Position().move('e3').fen()

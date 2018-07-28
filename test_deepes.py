@@ -1,4 +1,5 @@
-from deepes import Position
+from textwrap import dedent
+from deepes import Position, Piece, Color
 import pytest
 xfail = pytest.mark.xfail
 
@@ -25,22 +26,26 @@ BOARD_ARRAY_AFTER_E4 = (
 STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 FEN_AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
 FEN_AFTER_E3 = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
-STARTING_BBOARD = ('rnbqkbnr\n'
-                   'pppppppp\n'
-                   '........\n'
-                   '........\n'
-                   '........\n'
-                   '........\n'
-                   'PPPPPPPP\n'
-                   'RNBQKBNR')
-BBOARD_AFTER_E4 = ('rnbqkbnr\n'
-                   'pppppppp\n'
-                   '........\n'
-                   '........\n'
-                   '....P...\n'
-                   '........\n'
-                   'PPPP.PPP\n'
-                   'RNBQKBNR')
+STARTING_BBOARD = dedent('''
+    rnbqkbnr
+    pppppppp
+    ........
+    ........
+    ........
+    ........
+    PPPPPPPP
+    RNBQKBNR
+''').strip()
+BBOARD_AFTER_E4 = dedent('''
+    rnbqkbnr
+    pppppppp
+    ........
+    ........
+    ....P...
+    ........
+    PPPP.PPP
+    RNBQKBNR
+''').strip()
 
 
 def test_position_initializes():
@@ -161,7 +166,7 @@ def test_pawn_cannot_regress():
 
 
 def test_cannot_initialize_with_unexpected_active_color():
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(KeyError) as excinfo:
         Position('rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR y KQkq a6 0 2')
     assert 'Unexpected active color' in str(excinfo.value)
 
@@ -192,9 +197,32 @@ def test_rook_move2():
     assert pos.fen() == '8/8/1K1k3r/8/4r2R/8/8/R7 b - - 1 32'
 
 
+def test_rook_move_black():
+    pos = Position('rnbqkbn1/ppppppp1/7r/7p/7P/5PP1/PPPPP3/RNBQKBNR b KQq - 0 4')
+    pos = pos.move('Rc6')
+    assert pos.fen() == 'rnbqkbn1/ppppppp1/2r5/7p/7P/5PP1/PPPPP3/RNBQKBNR w KQq - 1 5'
+
+
 @xfail
 def test_rook_move_no_jump_over_piece():
     pos = Position('8/8/1K1kr3/8/4r2R/8/8/R7 w - - 2 33')
     with pytest.raises(Exception) as excinfo:
-        pos = pos.move('Rb4')
+        pos.move('Rb4')
     assert 'Illegal move' in str(excinfo.value)
+
+
+def test_can_move_here_initial():
+    pos = Position()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e4', Color.WHITE) == ('e2',)
+
+
+def test_can_move_here_initial_2():
+    pos = Position()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h6', Color.BLACK) == ('h7',)
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h5', Color.BLACK) == ('h7',)
+
+def test_can_move_pawn_cannot_jump():
+    pos = Position('rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2')
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f4', Color.WHITE) == ()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f5', Color.BLACK) == ()
