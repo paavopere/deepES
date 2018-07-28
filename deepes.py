@@ -199,12 +199,20 @@ class Position:
         """
         return 'abcdefgh'[x] + '87654321'[y]
 
-    def pieces_that_can_move_here(self, piece, target, color):
-        file_index = list('abcdefgh').index(target[0])
-        rank_index = list('87654321').index(target[1])
+    def find_pieces_xy(self, piece: Piece, color: Color) -> tuple:
+        """
+        >>> Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
+        ((2, 7), (5, 7))
+        """
+        char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
+        return tuple((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
 
-        if piece == 'R':
-            candidate_origins = []
+
+    def pieces_that_can_move_here(self, piece, target, color):
+
+        if piece == Piece.PAWN:
+            char = Piece.PAWN.value.upper() if color == Color.WHITE else Piece.PAWN.value.lower()
+            candidates_xy = [(x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char]
             pass
 
         raise NotImplementedError
