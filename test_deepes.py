@@ -1,3 +1,4 @@
+from textwrap import dedent
 from deepes import Position, Piece, Color
 import pytest
 xfail = pytest.mark.xfail
@@ -25,22 +26,26 @@ BOARD_ARRAY_AFTER_E4 = (
 STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 FEN_AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
 FEN_AFTER_E3 = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
-STARTING_BBOARD = ('rnbqkbnr\n'
-                   'pppppppp\n'
-                   '........\n'
-                   '........\n'
-                   '........\n'
-                   '........\n'
-                   'PPPPPPPP\n'
-                   'RNBQKBNR')
-BBOARD_AFTER_E4 = ('rnbqkbnr\n'
-                   'pppppppp\n'
-                   '........\n'
-                   '........\n'
-                   '....P...\n'
-                   '........\n'
-                   'PPPP.PPP\n'
-                   'RNBQKBNR')
+STARTING_BBOARD = dedent('''
+    rnbqkbnr
+    pppppppp
+    ........
+    ........
+    ........
+    ........
+    PPPPPPPP
+    RNBQKBNR
+''').strip()
+BBOARD_AFTER_E4 = dedent('''
+    rnbqkbnr
+    pppppppp
+    ........
+    ........
+    ....P...
+    ........
+    PPPP.PPP
+    RNBQKBNR
+''').strip()
 
 
 def test_position_initializes():
