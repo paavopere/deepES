@@ -1,4 +1,18 @@
 from itertools import product
+from enum import Enum
+
+
+class Piece(Enum):
+    KING = 'K'
+    QUEEN = 'Q'
+    BISHOP = 'B'
+    KNIGHT = 'N'
+    PAWN = 'P'
+
+
+class Color(Enum):
+    WHITE = 'w'
+    BLACK = 'b'
 
 
 class Position:
@@ -129,17 +143,15 @@ class Position:
         elif piece == 'R':
             orig_file_index = orig_rank_index = None
 
-            if self._active_color == 'w':
-                # find rook on same rank
-                for fi, sq in enumerate(self._board_array[rank_index]):
-                    if sq == 'R':
-                        orig_file_index, orig_rank_index = fi, rank_index
-                # find rook on same file
-                for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
-                    if sq == 'R':
-                        orig_file_index, orig_rank_index = file_index, ri
-            elif self._active_color == 'b':
-                raise NotImplementedError('moving black rooks not implemented')
+            # find rook on same rank
+            for fi, sq in enumerate(self._board_array[rank_index]):
+                if sq == ('R' if self._active_color == 'w' else 'r'):
+                    orig_file_index, orig_rank_index = fi, rank_index
+
+            # find rook on same file
+            for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
+                if sq == ('R' if self._active_color == 'w' else 'r'):
+                    orig_file_index, orig_rank_index = file_index, ri
 
         else:
             raise NotImplementedError('moving non-pawns not implemented')
@@ -170,9 +182,29 @@ class Position:
                                              new_en_passant_target, new_halfmove_clock, new_fullmove_number)
         return Position(fen=new_fen)
 
-    def pieces_that_can_move_here(self, piece, target):
+
+    @staticmethod
+    def square_str_to_xy(square_str):
+        """
+        >>> Position.square_str_to_xy('a1')
+        (0, 7)
+        """
+        return list('abcdefgh').index(square_str[0]), list('87654321').index(square_str[1])
+
+    @staticmethod
+    def square_xy_to_str(x, y):
+        """
+        >>> Position.square_xy_to_str(7, 3)
+        'h5'
+        """
+        return 'abcdefgh'[x] + '87654321'[y]
+
+    def pieces_that_can_move_here(self, piece, target, color):
         file_index = list('abcdefgh').index(target[0])
         rank_index = list('87654321').index(target[1])
 
         if piece == 'R':
+            candidate_origins = []
             pass
+
+        raise NotImplementedError

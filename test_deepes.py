@@ -1,4 +1,4 @@
-from deepes import Position
+from deepes import Position, Piece, Color
 import pytest
 xfail = pytest.mark.xfail
 
@@ -192,9 +192,20 @@ def test_rook_move2():
     assert pos.fen() == '8/8/1K1k3r/8/4r2R/8/8/R7 b - - 1 32'
 
 
+def test_rook_move_black():
+    pos = Position('rnbqkbn1/ppppppp1/7r/7p/7P/5PP1/PPPPP3/RNBQKBNR b KQq - 0 4')
+    pos = pos.move('Rc6')
+    assert pos.fen() == 'rnbqkbn1/ppppppp1/2r5/7p/7P/5PP1/PPPPP3/RNBQKBNR w KQq - 1 5'
+
+
 @xfail
 def test_rook_move_no_jump_over_piece():
     pos = Position('8/8/1K1kr3/8/4r2R/8/8/R7 w - - 2 33')
     with pytest.raises(Exception) as excinfo:
-        pos = pos.move('Rb4')
+        pos.move('Rb4')
     assert 'Illegal move' in str(excinfo.value)
+
+@xfail
+def test_can_move_here_initial():
+    pos = Position()
+    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e4', Color.WHITE) == ('e2',)
