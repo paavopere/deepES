@@ -166,7 +166,7 @@ def test_pawn_cannot_regress():
 
 
 def test_cannot_initialize_with_unexpected_active_color():
-    with pytest.raises(ValueError) as excinfo:
+    with pytest.raises(KeyError) as excinfo:
         Position('rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR y KQkq a6 0 2')
     assert 'Unexpected active color' in str(excinfo.value)
 

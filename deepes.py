@@ -22,12 +22,16 @@ class Position:
             fen = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 
         self._board_array = self.board_array_from_fen_pieces(fen.split(' ')[0])
-        self._active_color, self._castling_availability, self._en_passant_target = fen.split(' ')[1:4]
+
+        fen_color = fen.split(' ')[1]
+        try:
+            self._active_color = {'w': Color.WHITE, 'b': Color.BLACK}[fen_color]
+        except KeyError:
+            raise KeyError('Unexpected active color {}'.format(fen_color))
+
+        self._castling_availability, self._en_passant_target = fen.split(' ')[2:4]
         self._halfmove_clock = int(fen.split(' ')[4])
         self._fullmove_number = int(fen.split(' ')[5])
-
-        if self._active_color not in ('w', 'b'):
-            raise ValueError('Unexpected active color: {}'.format(self._active_color))
 
     def __repr__(self):
         return '{}({})'.format(self.__class__.__name__, repr(self.fen()))
@@ -80,7 +84,7 @@ class Position:
 
     def fen(self):
         """Forsyth-Edwards notation string of the position"""
-        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color,
+        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color.value,
                                           self._castling_availability, self._en_passant_target, self._halfmove_clock,
                                           self._fullmove_number)
 
@@ -101,8 +105,7 @@ class Position:
                 break
 
         # target indices
-        file_index = list('abcdefgh').index(target[0])
-        rank_index = list('87654321').index(target[1])
+        file_index, rank_index = self.square_str_to_xy(target)
 
         if 'x' in move_str:
             raise NotImplementedError('captures not implemented')
@@ -114,7 +117,7 @@ class Position:
         if piece == 'P':
             orig_file_index = orig_rank_index = None
 
-            if self._active_color == 'w':
+            if self._active_color == Color.WHITE:
                 if rank_index == 0:
                     raise NotImplementedError('Promotion not implemented (white)')
                 if self._board_array[rank_index + 1][file_index] == 'P':  # pawn one behind target
@@ -126,7 +129,7 @@ class Position:
                     new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
                 else:
                     raise Exception('Illegal move')
-            elif self._active_color == 'b':
+            elif self._active_color == Color.BLACK:
                 if rank_index == 7:
                     raise NotImplementedError('Promotion not implemented (black)')
                 if self._board_array[rank_index - 1][file_index] == 'p':  # pawn one behind target
@@ -146,12 +149,12 @@ class Position:
 
             # find rook on same rank
             for fi, sq in enumerate(self._board_array[rank_index]):
-                if sq == ('R' if self._active_color == 'w' else 'r'):
+                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
                     orig_file_index, orig_rank_index = fi, rank_index
 
             # find rook on same file
             for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
-                if sq == ('R' if self._active_color == 'w' else 'r'):
+                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
                     orig_file_index, orig_rank_index = file_index, ri
 
         else:
@@ -162,16 +165,16 @@ class Position:
         new_board = [list(x) for x in self._board_array]
         # move piece
         new_board[orig_rank_index][orig_file_index] = '.'
-        new_board[rank_index][file_index] = piece.upper() if self._active_color == 'w' else piece.lower()
+        new_board[rank_index][file_index] = piece.upper() if self._active_color == Color.WHITE else piece.lower()
         # read pieces to FEN
         new_fen_pieces = self.fen_pieces_from_board_array(new_board)
         # switch color
-        new_active_color = 'b' if self._active_color == 'w' else 'w'
+        new_active_color = 'b' if self._active_color == Color.WHITE else 'w'
         # clear en passant if we didn't create new target
         new_en_passant_target = new_en_passant_target or '-'
         # increment numbers
         new_halfmove_clock = 0 if reset_halfmove_clock else self._halfmove_clock + 1
-        new_fullmove_number = self._fullmove_number if self._active_color == 'w' else self._fullmove_number + 1
+        new_fullmove_number = self._fullmove_number if self._active_color == Color.WHITE else self._fullmove_number + 1
 
         if not remove_castling_availability:
             new_castling_availability = self._castling_availability
@@ -242,3 +245,7 @@ class Position:
                             actually_can.append(c)
 
         return tuple(self.square_xy_to_str(*xy) for xy in actually_can)
+
+
+if __name__ == '__main__':
+    Position().move('e3').fen()
