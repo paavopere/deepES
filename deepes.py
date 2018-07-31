@@ -1,5 +1,6 @@
 from itertools import product
 from enum import Enum
+from typing import Tuple
 
 
 class Piece(Enum):
@@ -211,37 +212,6 @@ class Position:
         char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
         return tuple((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
 
-    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color):
+    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> Tuple[str]:
         """Current locations of pieces that can move to target."""
-        target_xy = self.square_str_to_xy(target)
-        candidates_xy = self.find_pieces_xy(piece, color)
-
-        actually_can = []
-        if piece == Piece.KING:
-            raise NotImplementedError
-        elif piece == Piece.QUEEN:
-            raise NotImplementedError
-        elif piece == Piece.ROOK:
-            pass
-        elif piece == Piece.BISHOP:
-            raise NotImplementedError
-        elif piece == Piece.KNIGHT:
-            raise NotImplementedError
-        elif piece == Piece.PAWN:
-            if self._board_array[target_xy[1]][target_xy[0]] == '.':
-                if color == Color.WHITE:
-                    for c in candidates_xy:
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] + 1:
-                            actually_can.append(c)
-                        if (c[0] == target_xy[0] and c[1] == target_xy[1] + 2 and c[1] == 6
-                                and self._board_array[c[1] - 1][c[0]] == '.'):
-                            actually_can.append(c)
-                if color == Color.BLACK:
-                    for c in candidates_xy:
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] - 1:
-                            actually_can.append(c)
-                        if (c[0] == target_xy[0] and c[1] == target_xy[1] - 2 and c[1] == 1
-                                and self._board_array[c[1] + 1][c[0]] == '.'):
-                            actually_can.append(c)
-
-        return tuple(self.square_xy_to_str(*xy) for xy in actually_can)
+        raise NotImplementedError
