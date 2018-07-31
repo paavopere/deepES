@@ -166,6 +166,13 @@ def test_cannot_initialize_with_unexpected_active_color():
     assert 'Unexpected active color' in str(excinfo.value)
 
 
+def test_must_promote():
+    pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('a8')
+    assert 'Illegal move' in str(excinfo.value)
+
+
 @xfail
 def test_promote():
     pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0')

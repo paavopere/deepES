@@ -139,6 +139,11 @@ class Position:
             # all pawn moves reset halfmove clock
             reset_halfmove_clock = True
 
+            # promotion
+            if targ_y in (0, 7):
+                # TODO implement promotion when it's actually specified
+                raise Exception('Illegal move: must promote upon advancing to final rank')
+
         elif piece == 'R':
             orig_x = orig_y = None
 
