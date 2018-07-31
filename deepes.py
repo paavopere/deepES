@@ -1,5 +1,6 @@
 from itertools import product
 from enum import Enum
+from typing import Tuple, Optional, Set, FrozenSet
 
 
 class Piece(Enum):
@@ -186,7 +187,6 @@ class Position:
                                              new_en_passant_target, new_halfmove_clock, new_fullmove_number)
         return Position(fen=new_fen)
 
-
     @staticmethod
     def square_str_to_xy(square_str):
         """
@@ -203,45 +203,78 @@ class Position:
         """
         return 'abcdefgh'[x] + '87654321'[y]
 
-    def find_pieces_xy(self, piece: Piece, color: Color) -> tuple:
+    def find_pieces_xy(self, piece: Piece, color: Color) -> FrozenSet[tuple]:
         """
-        >>> Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
-        ((2, 7), (5, 7))
+        >>> ps = Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
+        >>> ps == {(2, 7), (5, 7)}
+        True
         """
         char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
-        return tuple((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
+        return frozenset((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
 
-    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color):
+    def find_pieces(self, piece: Piece, color: Color) -> FrozenSet[tuple]:
+        """
+        >>> ps = Position().find_pieces(Piece.BISHOP, Color.WHITE)
+        >>> ps == {'c1', 'f1'}
+        True
+        """
+        return frozenset(self.square_xy_to_str(*xy) for xy in self.find_pieces_xy(piece, color))
+
+    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> Tuple[str]:
         """Current locations of pieces that can move to target."""
-        target_xy = self.square_str_to_xy(target)
-        candidates_xy = self.find_pieces_xy(piece, color)
+        raise NotImplementedError
 
-        actually_can = []
-        if piece == Piece.KING:
-            raise NotImplementedError
-        elif piece == Piece.QUEEN:
-            raise NotImplementedError
-        elif piece == Piece.ROOK:
+    def _look_xy(self, x, y) -> str:
+        return self._board_array[y][x]
+
+    def _look_sq(self, square_str) -> str:
+        return self._look_xy(*self.square_str_to_xy(square_str))
+
+    def _empty_xy(self, x, y) -> bool:
+        return self._look_xy(x, y) == '.'
+
+    def candidate_targets_from(self, origin: str) -> Optional[FrozenSet[str]]:
+        """
+        Return candidate targets for the piece in the given square.
+        "Candidate targets" meaning squares where the piece could move if we do not take into account checks.
+
+        Empty origin square returns None, and a non-empty square with no targets returns an empty tuple.
+        """
+        char = self._look_sq(origin)
+        if char == '.':
+            return
+
+        piece_type = Piece(char.upper())
+        color = Color.WHITE if char.isupper() else Color.BLACK
+
+        candidates = set()
+
+        x, y = self.square_str_to_xy(origin)
+
+        if piece_type == Piece.PAWN:
+            start_y = 6 if color == Color.WHITE else 1
+            ydir = -1 if color == Color.WHITE else 1
+
+            # moves straight ahead
+            if self._empty_xy(x, y + ydir):
+                candidates.add(self.square_xy_to_str(x, y + ydir))
+                if y == start_y and self._empty_xy(x, y + 2*ydir):  # rank 2
+                    candidates.add(self.square_xy_to_str(x, y + 2*ydir))
+
+            # capturing moves
+            for capt_xy in ((x-1, y+ydir), (x+1, y+ydir)):
+                try:
+                    if self._look_xy(*capt_xy).islower() and color == Color.WHITE:
+                        candidates.add(self.square_xy_to_str(*capt_xy))
+                    if self._look_xy(*capt_xy).isupper() and color == Color.BLACK:
+                        candidates.add(self.square_xy_to_str(*capt_xy))
+                except IndexError:
+                    pass  # this happens when we go over the edge of the board
+
+                if self._en_passant_target != '-' and capt_xy == self.square_str_to_xy(self._en_passant_target):
+                    candidates.add(self._en_passant_target)
+
+        elif piece_type == Piece.KNIGHT:
             pass
-        elif piece == Piece.BISHOP:
-            raise NotImplementedError
-        elif piece == Piece.KNIGHT:
-            raise NotImplementedError
-        elif piece == Piece.PAWN:
-            if self._board_array[target_xy[1]][target_xy[0]] == '.':
-                if color == Color.WHITE:
-                    for c in candidates_xy:
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] + 1:
-                            actually_can.append(c)
-                        if (c[0] == target_xy[0] and c[1] == target_xy[1] + 2 and c[1] == 6
-                                and self._board_array[c[1] - 1][c[0]] == '.'):
-                            actually_can.append(c)
-                if color == Color.BLACK:
-                    for c in candidates_xy:
-                        if c[0] == target_xy[0] and c[1] == target_xy[1] - 1:
-                            actually_can.append(c)
-                        if (c[0] == target_xy[0] and c[1] == target_xy[1] - 2 and c[1] == 1
-                                and self._board_array[c[1] + 1][c[0]] == '.'):
-                            actually_can.append(c)
 
-        return tuple(self.square_xy_to_str(*xy) for xy in actually_can)
+        return frozenset(candidates)

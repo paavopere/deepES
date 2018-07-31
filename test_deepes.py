@@ -136,16 +136,11 @@ def test_pawn_cannot_advance_three():
 
 
 def test_pawn_cannot_advance_two_after_advancing():
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
+    pos = Position().move('e3').move('a6')
     with pytest.raises(Exception) as excinfo:
         pos.move('e5')
     assert str(excinfo.value) == 'Illegal move'
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
-    pos = pos.move('e4')
+    pos = Position().move('e3').move('a6').move('e4')
     with pytest.raises(Exception) as excinfo:
         pos.move('a4')
     assert str(excinfo.value) == 'Illegal move'
@@ -211,18 +206,32 @@ def test_rook_move_no_jump_over_piece():
     assert 'Illegal move' in str(excinfo.value)
 
 
-def test_can_move_here_initial():
+def test_pieces_that_can_move_here_not_implemented_lol():
     pos = Position()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e4', Color.WHITE) == ('e2',)
+    with pytest.raises(NotImplementedError):
+        pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
 
 
-def test_can_move_here_initial_2():
+def test_candidate_targets_initial_pawns():
     pos = Position()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h6', Color.BLACK) == ('h7',)
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h5', Color.BLACK) == ('h7',)
+    assert pos.candidate_targets_from('a2') == {'a3', 'a4'}
+    assert pos.candidate_targets_from('a7') == {'a6', 'a5'}
 
-def test_can_move_pawn_cannot_jump():
-    pos = Position('rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2')
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f4', Color.WHITE) == ()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f5', Color.BLACK) == ()
+
+def test_candidate_targets_capturing_pawns():
+    pos = Position('rn2kbn1/1ppb2p1/p7/1B1pppqp/2rPPPQP/1P6/P1P3PR/RNB1K1N1 w Qq - 6 11')
+    assert pos.candidate_targets_from('b3') == {'b4', 'c4'}
+    assert pos.candidate_targets_from('h5') == {'g4'}
+    assert pos.candidate_targets_from('e4') == {'d5', 'f5'}
+
+
+def test_candidate_targets_en_passant():
+    pos = Position('rnbqkbnr/1pp1pppp/8/p2pP3/8/P7/1PPP1PPP/RNBQKBNR w KQkq d6 0 4')
+    assert pos.candidate_targets_from('e5') == {'e6', 'd6'}
+
+
+@xfail
+def test_candidate_targets_initial_knights():
+    pos = Position()
+    assert pos.candidate_targets_from('b1') == {'a3', 'c3'}
+    assert pos.candidate_targets_from('b8') == {'a6', 'c6'}
