@@ -106,67 +106,61 @@ class Position:
                 break
 
         # target indices
-        file_index, rank_index = self.square_str_to_xy(target)
+        targ_x, targ_y = self.square_str_to_xy(target)
 
         if 'x' in move_str:
             raise NotImplementedError('captures not implemented')
         else:
-            if self._board_array[rank_index][file_index] != '.':
+            if self._board_array[targ_y][targ_x] != '.':
                 raise Exception('Illegal move: target occupied')
 
+        orig_x = orig_y = None
+
         # find original square
+
         if piece == 'P':
-            orig_file_index = orig_rank_index = None
+            candidate_origins = self.find_pieces(Piece.PAWN, self._active_color)
+            found = False
+            for co in candidate_origins:
+                if target in self.candidate_targets_from(co):
+                    if found:
+                        raise Exception('Ambiguous move')
+                    orig_x, orig_y = self.square_str_to_xy(co)
+                    found = True
+            if not found:
+                raise Exception('Illegal move')
 
-            if self._active_color == Color.WHITE:
-                if rank_index == 0:
-                    raise NotImplementedError('Promotion not implemented (white)')
-                if self._board_array[rank_index + 1][file_index] == 'P':  # pawn one behind target
-                    orig_file_index, orig_rank_index = file_index, rank_index + 1
-                elif self._board_array[rank_index + 2][file_index] == 'P':  # pawn two behind target
-                    orig_file_index, orig_rank_index = file_index, rank_index + 2
-                    if '87654321'[orig_rank_index] != '2':  # unexpected origin for pawn that moves 2
-                        raise Exception('Illegal move')
-                    new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index + 1]
-                else:
-                    raise Exception('Illegal move')
-            elif self._active_color == Color.BLACK:
-                if rank_index == 7:
-                    raise NotImplementedError('Promotion not implemented (black)')
-                if self._board_array[rank_index - 1][file_index] == 'p':  # pawn one behind target
-                    orig_file_index, orig_rank_index = file_index, rank_index - 1
-                elif self._board_array[rank_index - 2][file_index] == 'p':  # pawn two behind target
-                    orig_file_index, orig_rank_index = file_index, rank_index - 2
-                    if '87654321'[orig_rank_index] != '7':  # unexpected origin for pawn that moves 2
-                        raise Exception('Illegal move')
-                    new_en_passant_target = 'abcdefgh'[file_index] + '87654321'[rank_index - 1]
-                else:
-                    raise Exception('Illegal move')
+            # set en-passant targets if pawn moved 2
+            if orig_y == 6 and targ_y == 4 and self._active_color == Color.WHITE:
+                new_en_passant_target = self.square_xy_to_str(orig_x, orig_y - 1)
+            if orig_y == 1 and targ_y == 3 and self._active_color == Color.BLACK:
+                new_en_passant_target = self.square_xy_to_str(orig_x, orig_y + 1)
 
+            # all pawn moves reset halfmove clock
             reset_halfmove_clock = True
 
         elif piece == 'R':
-            orig_file_index = orig_rank_index = None
+            orig_x = orig_y = None
 
             # find rook on same rank
-            for fi, sq in enumerate(self._board_array[rank_index]):
+            for fi, sq in enumerate(self._board_array[targ_y]):
                 if sq == ('R' if self._active_color == Color.WHITE else 'r'):
-                    orig_file_index, orig_rank_index = fi, rank_index
+                    orig_x, orig_y = fi, targ_y
 
             # find rook on same file
-            for ri, sq in enumerate(tuple(zip(*self._board_array))[file_index]):
+            for ri, sq in enumerate(tuple(zip(*self._board_array))[targ_x]):
                 if sq == ('R' if self._active_color == Color.WHITE else 'r'):
-                    orig_file_index, orig_rank_index = file_index, ri
+                    orig_x, orig_y = targ_x, ri
 
         else:
-            raise NotImplementedError('moving non-pawns not implemented')
+            raise NotImplementedError('moving other pieces not implemented')
 
         # create new position
 
         new_board = [list(x) for x in self._board_array]
         # move piece
-        new_board[orig_rank_index][orig_file_index] = '.'
-        new_board[rank_index][file_index] = piece.upper() if self._active_color == Color.WHITE else piece.lower()
+        new_board[orig_y][orig_x] = '.'
+        new_board[targ_y][targ_x] = piece.upper() if self._active_color == Color.WHITE else piece.lower()
         # read pieces to FEN
         new_fen_pieces = self.fen_pieces_from_board_array(new_board)
         # switch color
