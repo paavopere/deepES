@@ -203,13 +203,22 @@ class Position:
         """
         return 'abcdefgh'[x] + '87654321'[y]
 
-    def find_pieces_xy(self, piece: Piece, color: Color) -> tuple:
+    def find_pieces_xy(self, piece: Piece, color: Color) -> FrozenSet[tuple]:
         """
-        >>> Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
-        ((2, 7), (5, 7))
+        >>> ps = Position().find_pieces_xy(Piece.BISHOP, Color.WHITE)
+        >>> ps == {(2, 7), (5, 7)}
+        True
         """
         char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
-        return tuple((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
+        return frozenset((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
+
+    def find_pieces(self, piece: Piece, color: Color) -> FrozenSet[tuple]:
+        """
+        >>> ps = Position().find_pieces(Piece.BISHOP, Color.WHITE)
+        >>> ps == {'c1', 'f1'}
+        True
+        """
+        return frozenset(self.square_xy_to_str(*xy) for xy in self.find_pieces_xy(piece, color))
 
     def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> Tuple[str]:
         """Current locations of pieces that can move to target."""
