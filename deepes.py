@@ -1,6 +1,6 @@
 from itertools import product
 from enum import Enum
-from typing import Tuple
+from typing import Tuple, Optional, Set, FrozenSet
 
 
 class Piece(Enum):
@@ -187,7 +187,6 @@ class Position:
                                              new_en_passant_target, new_halfmove_clock, new_fullmove_number)
         return Position(fen=new_fen)
 
-
     @staticmethod
     def square_str_to_xy(square_str):
         """
@@ -215,3 +214,58 @@ class Position:
     def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> Tuple[str]:
         """Current locations of pieces that can move to target."""
         raise NotImplementedError
+
+    def _look_xy(self, x, y) -> str:
+        return self._board_array[y][x]
+
+    def _look_sq(self, square_str) -> str:
+        return self._look_xy(*self.square_str_to_xy(square_str))
+
+    def _empty_xy(self, x, y) -> bool:
+        return self._look_xy(x, y) == '.'
+
+    def candidate_targets_from(self, origin: str) -> Optional[FrozenSet[str]]:
+        """
+        Return candidate targets for the piece in the given square.
+        "Candidate targets" meaning squares where the piece could move if we do not take into account checks.
+
+        Empty origin square returns None, and a non-empty square with no targets returns an empty tuple.
+        """
+        char = self._look_sq(origin)
+        if char == '.':
+            return
+
+        piece_type = Piece(char.upper())
+        color = Color.WHITE if char.isupper() else Color.BLACK
+
+        candidates = set()
+
+        x, y = self.square_str_to_xy(origin)
+
+        if piece_type == Piece.PAWN:
+            start_y = 6 if color == Color.WHITE else 1
+            ydir = -1 if color == Color.WHITE else 1
+
+            # moves straight ahead
+            if self._empty_xy(x, y + ydir):
+                candidates.add(self.square_xy_to_str(x, y + ydir))
+                if y == start_y and self._empty_xy(x, y + 2*ydir):  # rank 2
+                    candidates.add(self.square_xy_to_str(x, y + 2*ydir))
+
+            # capturing moves
+            for capt_xy in ((x-1, y+ydir), (x+1, y+ydir)):
+                try:
+                    if self._look_xy(*capt_xy).islower() and color == Color.WHITE:
+                        candidates.add(self.square_xy_to_str(*capt_xy))
+                    if self._look_xy(*capt_xy).isupper() and color == Color.BLACK:
+                        candidates.add(self.square_xy_to_str(*capt_xy))
+                except IndexError:
+                    pass  # this happens when we go over the edge of the board
+
+                if self._en_passant_target != '-' and capt_xy == self.square_str_to_xy(self._en_passant_target):
+                    candidates.add(self._en_passant_target)
+
+        elif piece_type == Piece.KNIGHT:
+            pass
+
+        return frozenset(candidates)
