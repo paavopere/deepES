@@ -245,7 +245,3 @@ class Position:
                             actually_can.append(c)
 
         return tuple(self.square_xy_to_str(*xy) for xy in actually_can)
-
-
-if __name__ == '__main__':
-    Position().move('e3').fen()
