@@ -136,16 +136,11 @@ def test_pawn_cannot_advance_three():
 
 
 def test_pawn_cannot_advance_two_after_advancing():
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
+    pos = Position().move('e3').move('a6')
     with pytest.raises(Exception) as excinfo:
         pos.move('e5')
     assert str(excinfo.value) == 'Illegal move'
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
-    pos = pos.move('e4')
+    pos = Position().move('e3').move('a6').move('e4')
     with pytest.raises(Exception) as excinfo:
         pos.move('a4')
     assert str(excinfo.value) == 'Illegal move'
