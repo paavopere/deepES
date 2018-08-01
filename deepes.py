@@ -277,3 +277,122 @@ class Position:
             pass
 
         return frozenset(candidates)
+
+
+def parse_move(move_str: str):
+    """
+    Given a move in algebraic notation, return a dict describing it.
+
+    >>> parse_move('Qe5') == {'target': 'e5', 'piece': 'Q'}
+    True
+
+    >>> parse_move('0-0-0') == {'castle': 'queenside'}
+    True
+
+    >>> parse_move('0-0') == {'castle': 'kingside'}
+    True
+
+    >>> parse_move('exd5') == {'piece': 'P', 'orig_file': 'e', 'capture': True, 'target': 'd5'}
+    True
+
+    >>> parse_move('Ze5') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('dxe8=Q+') == {
+    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q', 'check': True}
+    True
+
+    >>> parse_move('Be3xd4+') == {
+    ...     'piece': 'B', 'orig_file': 'e', 'orig_rank': '3', 'capture': True, 'target': 'd4', 'check': True}
+    True
+
+    >>> parse_move('e3#') == {'piece': 'P', 'target': 'e3', 'checkmate': True}
+    True
+
+    >>> parse_move('e3+#') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+    """
+
+    d = dict()
+
+    # let's make sure you don't pass lists or something stupid here
+    if not isinstance(move_str, str):
+        raise TypeError('Expected string')
+
+    # castling
+    if move_str[0] in 'O0':
+        if move_str in ('O-O', '0-0'):
+            castle_side = 'kingside'
+        elif move_str in ('O-O-O', '0-0-0'):
+            castle_side = 'queenside'
+        else:
+            raise ValueError('Unable to parse this one')
+        return dict(castle=castle_side)
+
+
+    # get piece
+    if move_str[0] in 'KQRBNP':
+        d['piece'] = move_str[0]
+        move_str = move_str[1:]
+    elif move_str[0] in 'abcdefgh':
+        d['piece'] = 'P'
+    else:
+        raise ValueError('Unable to parse this one')
+
+    # captures
+    if 'x' in move_str:
+        if move_str.count('x') != 1:
+            raise ValueError('Unable to parse this one')
+        d['capture'] = True
+        before_x, move_str = move_str.split('x')
+        if len(before_x) == 2:
+            d['orig_file'], d['orig_rank'] = before_x
+        else:
+            if len(before_x) != 1:
+                raise ValueError('Unable to parse this one')
+            if before_x in 'abcdefgh':
+                d['orig_file'] = before_x
+            elif before_x in '12345678':
+                d['orig_rank'] = before_x
+            else:
+                raise ValueError('Unable to parse this one')
+
+    # find last 12345678 from string; that should be the target rank
+    target_rank_index = None
+    for i, c in reversed(tuple(enumerate(move_str))):
+        if c in '12345678':
+            target_rank_index = i
+            break
+    d['target'] = move_str[target_rank_index-1:target_rank_index+1]
+
+    # whatever happens after the target square
+    after_target = move_str[target_rank_index+1:]
+    if after_target == '':
+        pass
+    elif after_target[0] in '+#=':
+        # promotion
+        if after_target[0] == '=':
+            if after_target[1] in 'KQRBN':
+                d['promote'] = after_target[1]
+            else:
+                raise ValueError('Unable to parse this one')
+            remains = after_target[2:]
+        else:
+            remains = after_target
+        # check/mate
+        if remains == '+':
+            d['check'] = True
+        elif remains == '#':
+            d['checkmate'] = True
+        elif remains == '':
+            pass
+        else:
+            raise ValueError('Unable to parse this one')
+    else:
+        raise ValueError('Unable to parse this one')
+
+    return d
