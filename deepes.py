@@ -350,6 +350,25 @@ def parse_move(move_str: str):
 
     >>> parse_move('Bd4xe5') == {'piece': 'B', 'target': 'e5', 'orig_rank': '4', 'orig_file': 'd', 'capture': True}
     True
+
+    >>> parse_move('Bzxd4') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('e8=Z') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('e3$$$') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('dxe8=Q') == {
+    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q'}
+    True
     """
 
     d = dict()
