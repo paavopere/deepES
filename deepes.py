@@ -315,6 +315,41 @@ def parse_move(move_str: str):
     Traceback (most recent call last):
     ...
     ValueError: ...
+
+    >>> parse_move(('e', '3')) # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    TypeError: ...
+
+    >>> parse_move('0-0-0-0') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('exxd4') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('ee6xd4') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
+    >>> parse_move('R4xe5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': True}
+    True
+
+    >>> parse_move('R4e5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4'}
+    True
+
+    >>> parse_move('Rae5') == {'piece': 'R', 'target': 'e5', 'orig_file': 'a'}
+    True
+
+    >>> parse_move('Bd4e5') == {'piece': 'B', 'target': 'e5', 'orig_rank': '4', 'orig_file': 'd'}
+    True
+
+    >>> parse_move('Bd4xe5') == {'piece': 'B', 'target': 'e5', 'orig_rank': '4', 'orig_file': 'd', 'capture': True}
+    True
     """
 
     d = dict()
@@ -348,18 +383,20 @@ def parse_move(move_str: str):
         if move_str.count('x') != 1:
             raise ValueError('Unable to parse this one')
         d['capture'] = True
-        before_x, move_str = move_str.split('x')
-        if len(before_x) == 2:
-            d['orig_file'], d['orig_rank'] = before_x
-        else:
-            if len(before_x) != 1:
-                raise ValueError('Unable to parse this one')
-            if before_x in 'abcdefgh':
-                d['orig_file'] = before_x
-            elif before_x in '12345678':
-                d['orig_rank'] = before_x
-            else:
-                raise ValueError('Unable to parse this one')
+        move_str = move_str.replace('x', '')
+
+        # before_x, move_str = move_str.split('x')
+        # if len(before_x) == 2:
+        #     d['orig_file'], d['orig_rank'] = before_x
+        # else:
+        #     if len(before_x) != 1:
+        #         raise ValueError('Unable to parse this one')
+        #     if before_x in 'abcdefgh':
+        #         d['orig_file'] = before_x
+        #     elif before_x in '12345678':
+        #         d['orig_rank'] = before_x
+        #     else:
+        #         raise ValueError('Unable to parse this one')
 
     # find last 12345678 from string; that should be the target rank
     target_rank_index = None
@@ -369,8 +406,24 @@ def parse_move(move_str: str):
             break
     d['target'] = move_str[target_rank_index-1:target_rank_index+1]
 
+    before_target, after_target = move_str[:target_rank_index-1], move_str[target_rank_index+1:]
+
+    # disambiguating origin before target
+    if before_target == '':
+        pass
+    elif len(before_target) == 1:
+        if before_target in 'abcdefgh':
+            d['orig_file'] = before_target
+        elif before_target in '12345678':
+            d['orig_rank'] = before_target
+        else:
+            raise ValueError('Unable to parse this one')
+    elif len(before_target) == 2:
+        d['orig_file'], d['orig_rank'] = before_target
+    else:
+        raise ValueError('Unable to parse this one')
+
     # whatever happens after the target square
-    after_target = move_str[target_rank_index+1:]
     if after_target == '':
         pass
     elif after_target[0] in '+#=':
