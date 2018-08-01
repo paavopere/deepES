@@ -279,6 +279,7 @@ class Position:
         return frozenset(candidates)
 
 
+# TODO: move most of these doctests elsewhere
 def parse_move(move_str: str):
     """
     Given a move in algebraic notation, return a dict describing it.
@@ -387,7 +388,6 @@ def parse_move(move_str: str):
             raise ValueError('Unable to parse this one')
         return dict(castle=castle_side)
 
-
     # get piece
     if move_str[0] in 'KQRBNP':
         d['piece'] = move_str[0]
@@ -403,19 +403,6 @@ def parse_move(move_str: str):
             raise ValueError('Unable to parse this one')
         d['capture'] = True
         move_str = move_str.replace('x', '')
-
-        # before_x, move_str = move_str.split('x')
-        # if len(before_x) == 2:
-        #     d['orig_file'], d['orig_rank'] = before_x
-        # else:
-        #     if len(before_x) != 1:
-        #         raise ValueError('Unable to parse this one')
-        #     if before_x in 'abcdefgh':
-        #         d['orig_file'] = before_x
-        #     elif before_x in '12345678':
-        #         d['orig_rank'] = before_x
-        #     else:
-        #         raise ValueError('Unable to parse this one')
 
     # find last 12345678 from string; that should be the target rank
     target_rank_index = None
