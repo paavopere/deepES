@@ -219,6 +219,11 @@ def test_pieces_that_can_move_here_not_implemented_lol():
         pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
 
 
+def test_candidate_targets_empty_square():
+    pos = Position()
+    assert pos.candidate_targets_from('e5') is None
+
+
 def test_candidate_targets_initial_pawns():
     pos = Position()
     assert pos.candidate_targets_from('a2') == {'a3', 'a4'}
@@ -237,8 +242,58 @@ def test_candidate_targets_en_passant():
     assert pos.candidate_targets_from('e5') == {'e6', 'd6'}
 
 
-@xfail
 def test_candidate_targets_initial_knights():
     pos = Position()
     assert pos.candidate_targets_from('b1') == {'a3', 'c3'}
     assert pos.candidate_targets_from('b8') == {'a6', 'c6'}
+
+
+def test_candidate_targets_knight_capture():
+    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 5')
+    assert pos.candidate_targets_from('f6') == {'g8', 'h5', 'g4', 'e4', 'd5', 'd7'}
+    assert pos.candidate_targets_from('f3') == {'g1', 'h4', 'g5', 'e5', 'd4', 'd2'}
+
+
+@xfail
+def test_candidate_targets_initial_blocked_pieces():
+    pos = Position()
+    assert pos.candidate_targets_from('a1') == set()
+    assert pos.candidate_targets_from('c1') == set()
+    assert pos.candidate_targets_from('d1') == set()
+    assert pos.candidate_targets_from('e1') == set()
+    assert pos.candidate_targets_from('h8') == set()
+    assert pos.candidate_targets_from('f8') == set()
+    assert pos.candidate_targets_from('e8') == set()
+    assert pos.candidate_targets_from('d8') == set()
+
+
+@xfail
+def test_candidate_targets_bishop():
+    pos = Position('rnbqkbnr/pppppp1p/8/6p1/8/3PB3/PPP1PPPP/RN1QKBNR b KQkq - 1 2')
+    assert pos.candidate_targets_from('f8') == {'g7', 'g8'}
+    assert pos.candidate_targets_from('b8') == {'c1', 'd2', 'f4', 'f5', 'd4', 'c5', 'b6', 'a7'}
+
+
+@xfail
+def test_candidate_targets_rook():
+    pos = Position('rnbqkbn1/1ppppp2/pB4r1/6Pp/8/3P3R/PPP1PPP1/RN1QKBN1 b Qq - 0 6')
+    assert pos.candidate_targets_from('h3') == {'h1', 'h2', 'h4', 'h5', 'e3', 'f3', 'g3'}
+    assert pos.candidate_targets_from('g6') == {'g7', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
+
+
+@xfail
+def test_candidate_targets_queen():
+    pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
+    assert pos.candidate_targets_from('c3') == {'c1', 'c2', 'a3', 'b3', 'a5', 'b4', 'd4', 'e5', 'd2'}
+
+
+@xfail
+def test_candidate_targets_king():
+    pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
+    assert pos.candidate_targets_from('e1') == {'d1', 'd2'}
+
+
+@xfail
+def test_candidate_targets_king_no_move_to_check():
+    pos = Position('rn1qkbnr/ppp1pppp/3p4/8/4P1b1/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3')
+    assert pos.candidate_targets_from('e1') == {'e2'}

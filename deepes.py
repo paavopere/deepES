@@ -224,20 +224,28 @@ class Position:
         raise NotImplementedError
 
     def _look_xy(self, x, y) -> str:
+        """Find character occupying xy"""
         return self._board_array[y][x]
 
     def _look_sq(self, square_str) -> str:
+        """Find character occupying square"""
         return self._look_xy(*self.square_str_to_xy(square_str))
 
     def _empty_xy(self, x, y) -> bool:
+        """Is xy empty?"""
         return self._look_xy(x, y) == '.'
+
+    @staticmethod
+    def _xy_on_board(x, y) -> bool:
+        """Does xy exist on board?"""
+        return 0 <= x <= 7 and 0 <= y <= 7
 
     def candidate_targets_from(self, origin: str) -> Optional[FrozenSet[str]]:
         """
         Return candidate targets for the piece in the given square.
         "Candidate targets" meaning squares where the piece could move if we do not take into account checks.
 
-        Empty origin square returns None, and a non-empty square with no targets returns an empty tuple.
+        Empty origin square returns None, and a non-empty square with no targets returns an empty frozenset.
         """
         char = self._look_sq(origin)
         if char == '.':
@@ -261,20 +269,39 @@ class Position:
                     candidates.add(self.square_xy_to_str(x, y + 2*ydir))
 
             # capturing moves
-            for capt_xy in ((x-1, y+ydir), (x+1, y+ydir)):
-                try:
-                    if self._look_xy(*capt_xy).islower() and color == Color.WHITE:
-                        candidates.add(self.square_xy_to_str(*capt_xy))
-                    if self._look_xy(*capt_xy).isupper() and color == Color.BLACK:
-                        candidates.add(self.square_xy_to_str(*capt_xy))
-                except IndexError:
-                    pass  # this happens when we go over the edge of the board
+            for cxy in ((x-1, y+ydir), (x+1, y+ydir)):
+                if self._xy_on_board(*cxy):
+                    if self._look_xy(*cxy).islower() and color == Color.WHITE:
+                        candidates.add(self.square_xy_to_str(*cxy))
+                    if self._look_xy(*cxy).isupper() and color == Color.BLACK:
+                        candidates.add(self.square_xy_to_str(*cxy))
 
-                if self._en_passant_target != '-' and capt_xy == self.square_str_to_xy(self._en_passant_target):
+                if self._en_passant_target != '-' and cxy == self.square_str_to_xy(self._en_passant_target):
                     candidates.add(self._en_passant_target)
 
         elif piece_type == Piece.KNIGHT:
-            pass
+            candidate_xys = (
+                (x+1, y+2), (x+1, y-2),
+                (x+2, y+1), (x+2, y-1),
+                (x-1, y+2), (x-1, y-2),
+                (x-2, y+1), (x-2, y-1)
+            )
+            for cxy in candidate_xys:
+                if self._xy_on_board(*cxy):
+                    if self._empty_xy(*cxy):
+                        candidates.add(self.square_xy_to_str(*cxy))
+                    elif (self._look_xy(*cxy).islower() and color == Color.WHITE
+                          ) or (self._look_xy(*cxy).isupper() and color == Color.BLACK):
+                        candidates.add(self.square_xy_to_str(*cxy))
+
+        elif piece_type == Piece.BISHOP:
+            raise NotImplementedError
+        elif piece_type == Piece.ROOK:
+            raise NotImplementedError
+        elif piece_type == Piece.QUEEN:
+            raise NotImplementedError
+        elif piece_type == Piece.KING:
+            raise NotImplementedError
 
         return frozenset(candidates)
 
