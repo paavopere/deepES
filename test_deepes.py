@@ -274,11 +274,10 @@ def test_candidate_targets_bishop():
     assert pos.candidate_targets_from('b8') == {'c1', 'd2', 'f4', 'f5', 'd4', 'c5', 'b6', 'a7'}
 
 
-@xfail
 def test_candidate_targets_rook():
     pos = Position('rnbqkbn1/1ppppp2/pB4r1/6Pp/8/3P3R/PPP1PPP1/RN1QKBN1 b Qq - 0 6')
     assert pos.candidate_targets_from('h3') == {'h1', 'h2', 'h4', 'h5', 'e3', 'f3', 'g3'}
-    assert pos.candidate_targets_from('g6') == {'g7', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
+    assert pos.candidate_targets_from('g6') == {'g7', 'g5', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
 
 
 @xfail

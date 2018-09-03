@@ -260,46 +260,94 @@ class Position:
 
         if piece_type == Piece.PAWN:
             start_y = 6 if color == Color.WHITE else 1
-            ydir = -1 if color == Color.WHITE else 1
+            dy = -1 if color == Color.WHITE else 1
 
             # moves straight ahead
-            if self._empty_xy(x, y + ydir):
-                candidates.add(self.square_xy_to_str(x, y + ydir))
-                if y == start_y and self._empty_xy(x, y + 2*ydir):  # rank 2
-                    candidates.add(self.square_xy_to_str(x, y + 2*ydir))
+            if self._empty_xy(x, y+dy):
+                candidates.add(self.square_xy_to_str(x, y+dy))
+                if y == start_y and self._empty_xy(x, y+2*dy):  # rank 2
+                    candidates.add(self.square_xy_to_str(x, y+2*dy))
 
             # capturing moves
-            for cxy in ((x-1, y+ydir), (x+1, y+ydir)):
-                if self._xy_on_board(*cxy):
-                    if self._look_xy(*cxy).islower() and color == Color.WHITE:
-                        candidates.add(self.square_xy_to_str(*cxy))
-                    if self._look_xy(*cxy).isupper() and color == Color.BLACK:
-                        candidates.add(self.square_xy_to_str(*cxy))
+            for pxy in ((x-1, y+dy), (x+1, y+dy)):
+                if self._xy_on_board(*pxy):
+                    if self._look_xy(*pxy).islower() and color == Color.WHITE:
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    if self._look_xy(*pxy).isupper() and color == Color.BLACK:
+                        candidates.add(self.square_xy_to_str(*pxy))
 
-                if self._en_passant_target != '-' and cxy == self.square_str_to_xy(self._en_passant_target):
+                if self._en_passant_target != '-' and pxy == self.square_str_to_xy(self._en_passant_target):
                     candidates.add(self._en_passant_target)
 
         elif piece_type == Piece.KNIGHT:
-            candidate_xys = (
+            possible_xys = (
                 (x+1, y+2), (x+1, y-2),
                 (x+2, y+1), (x+2, y-1),
                 (x-1, y+2), (x-1, y-2),
                 (x-2, y+1), (x-2, y-1)
             )
-            for cxy in candidate_xys:
-                if self._xy_on_board(*cxy):
-                    if self._empty_xy(*cxy):
-                        candidates.add(self.square_xy_to_str(*cxy))
-                    elif (self._look_xy(*cxy).islower() and color == Color.WHITE
-                          ) or (self._look_xy(*cxy).isupper() and color == Color.BLACK):
-                        candidates.add(self.square_xy_to_str(*cxy))
+            for pxy in possible_xys:
+                if not self._xy_on_board(*pxy):
+                    continue
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                # capturing moves
+                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                        or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                    candidates.add(self.square_xy_to_str(*pxy))
 
         elif piece_type == Piece.BISHOP:
             raise NotImplementedError
+
         elif piece_type == Piece.ROOK:
-            raise NotImplementedError
+            for dx in range(1, 8):
+                pxy = x+dx, y
+                if not self._xy_on_board(*pxy):
+                    break
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                else:
+                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    break
+            for dx in range(-1, -8, -1):
+                pxy = x+dx, y
+                if not self._xy_on_board(*pxy):
+                    break
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                else:
+                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    break
+            for dy in range(1, 8):
+                pxy = x, y+dy
+                if not self._xy_on_board(*pxy):
+                    break
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                else:
+                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    break
+            for dy in range(-1, -8, -1):
+                pxy = x, y+dy
+                if not self._xy_on_board(*pxy):
+                    break
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                else:
+                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    break
+
         elif piece_type == Piece.QUEEN:
             raise NotImplementedError
+
         elif piece_type == Piece.KING:
             raise NotImplementedError
 
