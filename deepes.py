@@ -371,17 +371,22 @@ def parse_move(move_str: str):
     """
     Given a move in algebraic notation, return a dict describing it.
 
-    >>> parse_move('Qe5') == {'target': 'e5', 'piece': 'Q'}
+    >>> parse_move('Qe5') == {
+    ...     'piece': 'Q', 'target': 'e5',
+    ...     'orig_rank': None, 'orig_file': None, 'capture': False, 'castle': None, 'check': False, 'checkmate': False,
+    ...     'promote': None
+    ... }
     True
 
-    >>> parse_move('0-0-0') == {'castle': 'queenside'}
-    True
+    >>> parse_move('0-0-0')['castle']
+    'queenside'
 
-    >>> parse_move('0-0') == {'castle': 'kingside'}
-    True
+    >>> parse_move('O-O')['castle']
+    'kingside'
 
-    >>> parse_move('exd5') == {'piece': 'P', 'orig_file': 'e', 'capture': True, 'target': 'd5'}
-    True
+    >>> m = parse_move('exd5')
+    >>> m['piece'], m['orig_file'], m['capture'], m['target']
+    ('P', 'e', True, 'd5')
 
     >>> parse_move('Ze5') # doctest: +ELLIPSIS
     Traceback (most recent call last):
@@ -389,14 +394,15 @@ def parse_move(move_str: str):
     ValueError: ...
 
     >>> parse_move('dxe8=Q+') == {
-    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q', 'check': True}
+    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q', 'check': True,
+    ...     'orig_rank': None, 'castle': None, 'checkmate': False}
     True
 
-    >>> parse_move('Be3xd4+') == {
-    ...     'piece': 'B', 'orig_file': 'e', 'orig_rank': '3', 'capture': True, 'target': 'd4', 'check': True}
-    True
+    >>> m = parse_move('Be3xd4+')
+    >>> m['piece'], m['orig_file'], m['orig_rank'], m['capture'], m['target'], m['check']
+    ('B', 'e', '3', True, 'd4', True)
 
-    >>> parse_move('e3#') == {'piece': 'P', 'target': 'e3', 'checkmate': True}
+    >>> parse_move('e3#')['checkmate']
     True
 
     >>> parse_move('e3+#') # doctest: +ELLIPSIS
@@ -424,19 +430,23 @@ def parse_move(move_str: str):
     ...
     ValueError: ...
 
-    >>> parse_move('R4xe5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': True}
+    >>> parse_move('R4xe5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': True,
+    ...     'orig_file': None, 'check': False, 'checkmate': False, 'promote': None, 'castle': None}
     True
 
-    >>> parse_move('R4e5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4'}
+    >>> parse_move('R4e5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4',
+    ...     'capture': False, 'orig_file': None, 'check': False, 'checkmate': False, 'promote': None, 'castle': None}
     True
 
-    >>> parse_move('Rae5') == {'piece': 'R', 'target': 'e5', 'orig_file': 'a'}
-    True
+    >>> parse_move('Rae5')['orig_file']
+    'a'
 
-    >>> parse_move('Bd4e5') == {'piece': 'B', 'target': 'e5', 'orig_rank': '4', 'orig_file': 'd'}
-    True
+    >>> m = parse_move('Bd4e5')
+    >>> m['orig_file'], m['orig_rank']
+    ('d', '4')
 
-    >>> parse_move('Bd4xe5') == {'piece': 'B', 'target': 'e5', 'orig_rank': '4', 'orig_file': 'd', 'capture': True}
+    >>> parse_move('Bd4xe5') == {'piece': 'B', 'orig_rank': '4', 'orig_file': 'd', 'capture': True, 'target': 'e5',
+    ...     'castle': None, 'check': False, 'checkmate': False, 'promote': None}
     True
 
     >>> parse_move('Bzxd4') # doctest: +ELLIPSIS
@@ -454,12 +464,13 @@ def parse_move(move_str: str):
     ...
     ValueError: ...
 
-    >>> parse_move('dxe8=Q') == {
-    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q'}
+    >>> parse_move('dxe8=Q') == {'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q',
+    ...     'orig_rank': None, 'castle': None, 'check': False, 'checkmate': False}
     True
     """
 
-    d = dict()
+    d = dict(piece=None, orig_rank=None, orig_file=None, capture=False,
+             target=None, castle=None, check=False, checkmate=False, promote=None)
 
     # let's make sure you don't pass lists or something stupid here
     if not isinstance(move_str, str):
@@ -473,7 +484,8 @@ def parse_move(move_str: str):
             castle_side = 'queenside'
         else:
             raise ValueError('Unable to parse this one')
-        return dict(castle=castle_side)
+        d['castle'] = castle_side
+        return d
 
     # get piece
     if move_str[0] in 'KQRBNP':
