@@ -267,11 +267,10 @@ def test_candidate_targets_initial_blocked_pieces():
     assert pos.candidate_targets_from('d8') == set()
 
 
-@xfail
 def test_candidate_targets_bishop():
     pos = Position('rnbqkbnr/pppppp1p/8/6p1/8/3PB3/PPP1PPPP/RN1QKBNR b KQkq - 1 2')
-    assert pos.candidate_targets_from('f8') == {'g7', 'g8'}
-    assert pos.candidate_targets_from('b8') == {'c1', 'd2', 'f4', 'f5', 'd4', 'c5', 'b6', 'a7'}
+    assert pos.candidate_targets_from('f8') == {'g7', 'h6'}
+    assert pos.candidate_targets_from('e3') == {'c1', 'd2', 'f4', 'g5', 'd4', 'c5', 'b6', 'a7'}
 
 
 def test_candidate_targets_rook():
@@ -292,7 +291,9 @@ def test_candidate_targets_king():
     assert pos.candidate_targets_from('e1') == {'d1', 'd2'}
 
 
-@xfail
-def test_candidate_targets_king_no_move_to_check():
-    pos = Position('rn1qkbnr/ppp1pppp/3p4/8/4P1b1/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3')
-    assert pos.candidate_targets_from('e1') == {'e2'}
+# # this shall be covered by some other function
+#
+# @xfail
+# def test_candidate_targets_king_no_move_to_check():
+#     pos = Position('rn1qkbnr/ppp1pppp/3p4/8/4P1b1/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3')
+#     assert pos.candidate_targets_from('e1') == {'e2'}

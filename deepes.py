@@ -297,7 +297,23 @@ class Position:
                     candidates.add(self.square_xy_to_str(*pxy))
 
         elif piece_type == Piece.BISHOP:
-            raise NotImplementedError
+            diagonal_pos_pos = ((d, d) for d in range(1, 8))
+            diagonal_pos_neg = ((d, -d) for d in range(1, 8))
+            diagonal_neg_pos = ((-d, d) for d in range(1, 8))
+            diagonal_neg_neg = ((-d, -d) for d in range(1, 8))
+
+            for direction_displacement_seq in diagonal_pos_pos, diagonal_pos_neg, diagonal_neg_pos, diagonal_neg_neg:
+                for dx, dy in direction_displacement_seq:
+                    pxy = x+dx, y+dy
+                    if not self._xy_on_board(*pxy):
+                        break
+                    if self._empty_xy(*pxy):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    else:
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                            candidates.add(self.square_xy_to_str(*pxy))
+                        break
 
         elif piece_type == Piece.ROOK:
             vertical_pos = ((0, d) for d in range(1, 8))
