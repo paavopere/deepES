@@ -300,50 +300,23 @@ class Position:
             raise NotImplementedError
 
         elif piece_type == Piece.ROOK:
-            for dx in range(1, 8):
-                pxy = x+dx, y
-                if not self._xy_on_board(*pxy):
-                    break
-                if self._empty_xy(*pxy):
-                    candidates.add(self.square_xy_to_str(*pxy))
-                else:
-                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+            vertical_pos = ((0, d) for d in range(1, 8))
+            vertical_neg = ((0, -d) for d in range(1, 8))
+            horizontal_pos = ((d, 0) for d in range(1, 8))
+            horizontal_neg = ((-d, 0) for d in range(1, 8))
+
+            for direction_displacement_seq in vertical_pos, vertical_neg, horizontal_pos, horizontal_neg:
+                for dx, dy in direction_displacement_seq:
+                    pxy = x+dx, y+dy
+                    if not self._xy_on_board(*pxy):
+                        break
+                    if self._empty_xy(*pxy):
                         candidates.add(self.square_xy_to_str(*pxy))
-                    break
-            for dx in range(-1, -8, -1):
-                pxy = x+dx, y
-                if not self._xy_on_board(*pxy):
-                    break
-                if self._empty_xy(*pxy):
-                    candidates.add(self.square_xy_to_str(*pxy))
-                else:
-                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
-                        candidates.add(self.square_xy_to_str(*pxy))
-                    break
-            for dy in range(1, 8):
-                pxy = x, y+dy
-                if not self._xy_on_board(*pxy):
-                    break
-                if self._empty_xy(*pxy):
-                    candidates.add(self.square_xy_to_str(*pxy))
-                else:
-                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
-                        candidates.add(self.square_xy_to_str(*pxy))
-                    break
-            for dy in range(-1, -8, -1):
-                pxy = x, y+dy
-                if not self._xy_on_board(*pxy):
-                    break
-                if self._empty_xy(*pxy):
-                    candidates.add(self.square_xy_to_str(*pxy))
-                else:
-                    if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                            or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
-                        candidates.add(self.square_xy_to_str(*pxy))
-                    break
+                    else:
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                            candidates.add(self.square_xy_to_str(*pxy))
+                        break
 
         elif piece_type == Piece.QUEEN:
             raise NotImplementedError
