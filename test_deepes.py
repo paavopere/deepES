@@ -254,7 +254,6 @@ def test_candidate_targets_knight_capture():
     assert pos.candidate_targets_from('f3') == {'g1', 'h4', 'g5', 'e5', 'd4', 'd2'}
 
 
-@xfail
 def test_candidate_targets_initial_blocked_pieces():
     pos = Position()
     assert pos.candidate_targets_from('a1') == set()
@@ -279,13 +278,11 @@ def test_candidate_targets_rook():
     assert pos.candidate_targets_from('g6') == {'g7', 'g5', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
 
 
-@xfail
 def test_candidate_targets_queen():
     pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
     assert pos.candidate_targets_from('c3') == {'c1', 'c2', 'a3', 'b3', 'a5', 'b4', 'd4', 'e5', 'd2'}
 
 
-@xfail
 def test_candidate_targets_king():
     pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
     assert pos.candidate_targets_from('e1') == {'d1', 'd2'}
@@ -297,3 +294,11 @@ def test_candidate_targets_king():
 # def test_candidate_targets_king_no_move_to_check():
 #     pos = Position('rn1qkbnr/ppp1pppp/3p4/8/4P1b1/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3')
 #     assert pos.candidate_targets_from('e1') == {'e2'}
+
+# TODO: tests to write
+# - actual moves for bishops, knights, queens and kings
+# - no moves that cause check for ourselves
+# - when checked, no moves that do not escape check
+# - checking and mating moves
+# - en passant
+# - castling

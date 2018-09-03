@@ -258,6 +258,16 @@ class Position:
 
         x, y = self.square_str_to_xy(origin)
 
+        # chains of positions a bishop, rook or queen moves in a single direction
+        horizontal_pos = ((d, 0) for d in range(1, 8))
+        horizontal_neg = ((-d, 0) for d in range(1, 8))
+        vertical_pos = ((0, d) for d in range(1, 8))
+        vertical_neg = ((0, -d) for d in range(1, 8))
+        diagonal_pos_pos = ((d, d) for d in range(1, 8))
+        diagonal_pos_neg = ((d, -d) for d in range(1, 8))
+        diagonal_neg_pos = ((-d, d) for d in range(1, 8))
+        diagonal_neg_neg = ((-d, -d) for d in range(1, 8))
+
         if piece_type == Piece.PAWN:
             start_y = 6 if color == Color.WHITE else 1
             dy = -1 if color == Color.WHITE else 1
@@ -297,11 +307,6 @@ class Position:
                     candidates.add(self.square_xy_to_str(*pxy))
 
         elif piece_type == Piece.BISHOP:
-            diagonal_pos_pos = ((d, d) for d in range(1, 8))
-            diagonal_pos_neg = ((d, -d) for d in range(1, 8))
-            diagonal_neg_pos = ((-d, d) for d in range(1, 8))
-            diagonal_neg_neg = ((-d, -d) for d in range(1, 8))
-
             for direction_displacement_seq in diagonal_pos_pos, diagonal_pos_neg, diagonal_neg_pos, diagonal_neg_neg:
                 for dx, dy in direction_displacement_seq:
                     pxy = x+dx, y+dy
@@ -316,12 +321,7 @@ class Position:
                         break
 
         elif piece_type == Piece.ROOK:
-            vertical_pos = ((0, d) for d in range(1, 8))
-            vertical_neg = ((0, -d) for d in range(1, 8))
-            horizontal_pos = ((d, 0) for d in range(1, 8))
-            horizontal_neg = ((-d, 0) for d in range(1, 8))
-
-            for direction_displacement_seq in vertical_pos, vertical_neg, horizontal_pos, horizontal_neg:
+            for direction_displacement_seq in horizontal_pos, horizontal_neg, vertical_pos, vertical_neg:
                 for dx, dy in direction_displacement_seq:
                     pxy = x+dx, y+dy
                     if not self._xy_on_board(*pxy):
@@ -335,10 +335,33 @@ class Position:
                         break
 
         elif piece_type == Piece.QUEEN:
-            raise NotImplementedError
+            for direction_displacement_seq in horizontal_pos, horizontal_neg, vertical_pos, vertical_neg, \
+                                              diagonal_pos_pos, diagonal_pos_neg, diagonal_neg_pos, diagonal_neg_neg:
+                for dx, dy in direction_displacement_seq:
+                    pxy = x+dx, y+dy
+                    if not self._xy_on_board(*pxy):
+                        break
+                    if self._empty_xy(*pxy):
+                        candidates.add(self.square_xy_to_str(*pxy))
+                    else:
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                            candidates.add(self.square_xy_to_str(*pxy))
+                        break
 
         elif piece_type == Piece.KING:
-            raise NotImplementedError
+            displacements = set(product((-1, 0, 1), repeat=2))
+            displacements.remove((0, 0))
+            for dx, dy in displacements:
+                pxy = x+dx, y+dy
+                if not self._xy_on_board(*pxy):
+                    continue
+                if self._empty_xy(*pxy):
+                    candidates.add(self.square_xy_to_str(*pxy))
+                # capturing moves
+                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) \
+                        or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                    candidates.add(self.square_xy_to_str(*pxy))
 
         return frozenset(candidates)
 
