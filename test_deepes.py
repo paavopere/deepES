@@ -234,6 +234,25 @@ def test_king_move_invalidate_castling():
     assert pos.fen() == 'rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPPKPPP/RNBQ1BNR b kq - 1 2'
 
 
+@xfail
+def test_castling():
+    pos = Position('r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQK2R w KQkq - 2 5')
+    pos = pos.move('O-O')
+    assert pos.fen() == 'r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQ1RK1 b kq - 3 5'
+    pos = Position('r3kbnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 b kq - 0 6')
+    pos = pos.move('O-O-O')
+    assert pos.fen('2kr1bnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 w - - 1 7')
+
+
+@xfail
+def test_castling_not_available():
+    pos = Position('r2qk1nr/p1pbbppp/1pnp4/4p3/4P2P/5NPR/PPPP1PB1/RNBQK3 w Qkq - 0 7')
+    pos = pos.move('Rh1').move('Be6')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('O-O')
+    assert 'Illegal move' in str(excinfo.value)
+
+
 def test_pieces_that_can_move_here():
     pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/1P3N2/PBPP1PPP/RN1QKB1R w KQkq - 0 5')
     assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.WHITE) == {'f3'}
@@ -325,4 +344,3 @@ def test_candidate_targets_king():
 # - when checked, no moves that do not escape check
 # - checking and mating moves
 # - en passant
-# - castling
