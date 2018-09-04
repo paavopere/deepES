@@ -344,3 +344,6 @@ def test_candidate_targets_king():
 # - when checked, no moves that do not escape check
 # - checking and mating moves
 # - en passant
+# - ambiguous origin
+# - disambiguate based on file
+# - captures
