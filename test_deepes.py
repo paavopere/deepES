@@ -205,12 +205,23 @@ def test_rook_move_black():
     assert pos.fen() == 'rnbqkbn1/ppppppp1/2r5/7p/7P/5PP1/PPPPP3/RNBQKBNR w KQq - 1 5'
 
 
-@xfail
 def test_rook_move_no_jump_over_piece():
     pos = Position('8/8/1K1kr3/8/4r2R/8/8/R7 w - - 2 33')
     with pytest.raises(Exception) as excinfo:
         pos.move('Rb4')
     assert 'Illegal move' in str(excinfo.value)
+
+
+def test_king_move():
+    pos = Position('6kr/8/8/8/8/8/8/RK6 b - - 15 41') \
+            .move('Kf7')
+    assert pos.fen() == '7r/5k2/8/8/8/8/8/RK6 w - - 16 42'
+
+
+def test_king_move_invalidate_castling():
+    pos = Position('rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2') \
+            .move('Ke2')
+    assert pos.fen() == 'rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPPKPPP/RNBQ1BNR b kq - 1 2'
 
 
 def test_pieces_that_can_move_here():
@@ -299,7 +310,7 @@ def test_candidate_targets_king():
 #     assert pos.candidate_targets_from('e1') == {'e2'}
 
 # TODO: tests to write
-# - actual moves for bishops, knights, queens and kings
+# - actual moves for bishops, knights and queens
 # - no moves that cause check for ourselves
 # - when checked, no moves that do not escape check
 # - checking and mating moves

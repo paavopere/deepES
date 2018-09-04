@@ -151,6 +151,9 @@ class Position:
                 # TODO implement promotion when it's actually specified
                 raise Exception('Illegal move: must promote upon advancing to final rank')
 
+        if piece == Piece.KING:
+            remove_castling_availability = 'KQ' if self._active_color == Color.WHITE else 'kq'
+
         # create new position
 
         new_board = [list(x) for x in self._board_array]
@@ -170,7 +173,8 @@ class Position:
         if not remove_castling_availability:
             new_castling_availability = self._castling_availability
         else:
-            raise NotImplementedError('Yet to figure out how castling is invalidated')
+            new_castling_availability = ''.join(char for char in self._castling_availability
+                                                if char not in remove_castling_availability)
 
         # construct new FEN and create Position
         new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
