@@ -128,27 +128,22 @@ def test_pawns_can_initially_advance_two():
 def test_pawn_cannot_advance_three():
     with pytest.raises(Exception) as excinfo:
         Position().move('a5')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
     with pytest.raises(Exception) as excinfo:
         Position().move('a4').move('c4')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
 
 def test_pawn_cannot_advance_two_after_advancing():
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
+    pos = Position().move('e3').move('a6')
     with pytest.raises(Exception) as excinfo:
         pos.move('e5')
-    assert str(excinfo.value) == 'Illegal move'
-    pos = Position()
-    pos = pos.move('e3')
-    pos = pos.move('a6')
-    pos = pos.move('e4')
+    assert 'Illegal move' in str(excinfo.value)
+    pos = Position().move('e3').move('a6').move('e4')
     with pytest.raises(Exception) as excinfo:
         pos.move('a4')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
 
 def test_pawn_cannot_advance_into_occupied_square():
@@ -169,6 +164,13 @@ def test_cannot_initialize_with_unexpected_active_color():
     with pytest.raises(KeyError) as excinfo:
         Position('rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR y KQkq a6 0 2')
     assert 'Unexpected active color' in str(excinfo.value)
+
+
+def test_must_promote():
+    pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('a8')
+    assert 'Illegal move' in str(excinfo.value)
 
 
 @xfail
@@ -211,18 +213,95 @@ def test_rook_move_no_jump_over_piece():
     assert 'Illegal move' in str(excinfo.value)
 
 
-def test_can_move_here_initial():
+def test_pieces_that_can_move_here():
+    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/1P3N2/PBPP1PPP/RN1QKB1R w KQkq - 0 5')
+    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.WHITE) == {'f3'}
+    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.BLACK) == set()
+    pos = Position('3R2R1/8/4k3/8/2r5/8/2r5/5K2 b - - 3 28')
+    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='e8', color=Color.WHITE) == {'d8', 'g8'}
+    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='c5', color=Color.BLACK) == {'c4'}
+
+
+def test_candidate_targets_empty_square():
     pos = Position()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'e4', Color.WHITE) == ('e2',)
+    assert pos.candidate_targets_from('e5') is None
 
 
-def test_can_move_here_initial_2():
+def test_candidate_targets_initial_pawns():
     pos = Position()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h6', Color.BLACK) == ('h7',)
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'h5', Color.BLACK) == ('h7',)
+    assert pos.candidate_targets_from('a2') == {'a3', 'a4'}
+    assert pos.candidate_targets_from('a7') == {'a6', 'a5'}
 
-def test_can_move_pawn_cannot_jump():
-    pos = Position('rnbqkb1r/pppppppp/5n2/8/8/5N2/PPPPPPPP/RNBQKB1R w KQkq - 2 2')
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f4', Color.WHITE) == ()
-    assert pos.pieces_that_can_move_here(Piece.PAWN, 'f5', Color.BLACK) == ()
+
+def test_candidate_targets_capturing_pawns():
+    pos = Position('rn2kbn1/1ppb2p1/p7/1B1pppqp/2rPPPQP/1P6/P1P3PR/RNB1K1N1 w Qq - 6 11')
+    assert pos.candidate_targets_from('b3') == {'b4', 'c4'}
+    assert pos.candidate_targets_from('h5') == {'g4'}
+    assert pos.candidate_targets_from('e4') == {'d5', 'f5'}
+
+
+def test_candidate_targets_en_passant():
+    pos = Position('rnbqkbnr/1pp1pppp/8/p2pP3/8/P7/1PPP1PPP/RNBQKBNR w KQkq d6 0 4')
+    assert pos.candidate_targets_from('e5') == {'e6', 'd6'}
+
+
+def test_candidate_targets_initial_knights():
+    pos = Position()
+    assert pos.candidate_targets_from('b1') == {'a3', 'c3'}
+    assert pos.candidate_targets_from('b8') == {'a6', 'c6'}
+
+
+def test_candidate_targets_knight_capture():
+    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 5')
+    assert pos.candidate_targets_from('f6') == {'g8', 'h5', 'g4', 'e4', 'd5', 'd7'}
+    assert pos.candidate_targets_from('f3') == {'g1', 'h4', 'g5', 'e5', 'd4', 'd2'}
+
+
+def test_candidate_targets_initial_blocked_pieces():
+    pos = Position()
+    assert pos.candidate_targets_from('a1') == set()
+    assert pos.candidate_targets_from('c1') == set()
+    assert pos.candidate_targets_from('d1') == set()
+    assert pos.candidate_targets_from('e1') == set()
+    assert pos.candidate_targets_from('h8') == set()
+    assert pos.candidate_targets_from('f8') == set()
+    assert pos.candidate_targets_from('e8') == set()
+    assert pos.candidate_targets_from('d8') == set()
+
+
+def test_candidate_targets_bishop():
+    pos = Position('rnbqkbnr/pppppp1p/8/6p1/8/3PB3/PPP1PPPP/RN1QKBNR b KQkq - 1 2')
+    assert pos.candidate_targets_from('f8') == {'g7', 'h6'}
+    assert pos.candidate_targets_from('e3') == {'c1', 'd2', 'f4', 'g5', 'd4', 'c5', 'b6', 'a7'}
+
+
+def test_candidate_targets_rook():
+    pos = Position('rnbqkbn1/1ppppp2/pB4r1/6Pp/8/3P3R/PPP1PPP1/RN1QKBN1 b Qq - 0 6')
+    assert pos.candidate_targets_from('h3') == {'h1', 'h2', 'h4', 'h5', 'e3', 'f3', 'g3'}
+    assert pos.candidate_targets_from('g6') == {'g7', 'g5', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
+
+
+def test_candidate_targets_queen():
+    pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
+    assert pos.candidate_targets_from('c3') == {'c1', 'c2', 'a3', 'b3', 'a5', 'b4', 'd4', 'e5', 'd2'}
+
+
+def test_candidate_targets_king():
+    pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
+    assert pos.candidate_targets_from('e1') == {'d1', 'd2'}
+
+
+# # this shall be covered by some other function
+#
+# @xfail
+# def test_candidate_targets_king_no_move_to_check():
+#     pos = Position('rn1qkbnr/ppp1pppp/3p4/8/4P1b1/3P4/PPP2PPP/RNBQKBNR w KQkq - 1 3')
+#     assert pos.candidate_targets_from('e1') == {'e2'}
+
+# TODO: tests to write
+# - actual moves for bishops, knights, queens and kings
+# - no moves that cause check for ourselves
+# - when checked, no moves that do not escape check
+# - checking and mating moves
+# - en passant
+# - castling
