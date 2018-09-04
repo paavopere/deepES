@@ -94,78 +94,69 @@ class Position:
         reset_halfmove_clock = False
         remove_castling_availability = None
 
-        # get moved piece
-        piece = move_str[0] if move_str[0] in 'KQRBNP' else 'P'
+        parsed = parse_move(move_str)
 
-        # get target square
-        target = None
-        possible_targets = (''.join(z) for z in product('abcdefgh', '12345678'))
-        for possible_target in possible_targets:
-            if possible_target in move_str:
-                target = possible_target
-                break
+        if parsed['castle'] is not None:
+            raise NotImplementedError('castling not implemented')
+        if parsed['promote'] is not None:
+            raise NotImplementedError('promotion not implemented')
 
-        # target indices
+        piece = Piece(parsed['piece'])
+        target = parsed['target']
         targ_x, targ_y = self.square_str_to_xy(target)
 
-        if 'x' in move_str:
+        # origin coordinates can be None, or they can be specified in move string
+        orig_x = orig_y = None
+        if parsed['orig_file'] is not None:
+            orig_x = list('abcdefgh').index(parsed['orig_file'])
+        if parsed['orig_rank'] is not None:
+            orig_y = list('87654321').index(parsed['orig_rank'])
+
+        if parsed['capture']:
             raise NotImplementedError('captures not implemented')
         else:
-            if self._board_array[targ_y][targ_x] != '.':
+            if not self._empty_xy(targ_x, targ_y):
                 raise Exception('Illegal move: target occupied')
 
-        orig_x = orig_y = None
+        possible_origins = set(self.pieces_that_can_move_here(target=target, piece=piece, color=self._active_color))
 
-        # find original square
+        # if origin rank/file was specified, discard possible origins that do not match
+        if orig_x:
+            for po in possible_origins:
+                if self.square_str_to_xy(po)[0] != orig_x:
+                    possible_origins.remove(po)
+        if orig_y:
+            for po in possible_origins:
+                if self.square_str_to_xy(po)[1] != orig_y:
+                    possible_origins.remove(po)
 
-        if piece == 'P':
-            candidate_origins = self.find_pieces(Piece.PAWN, self._active_color)
-            found = False
-            for co in candidate_origins:
-                if target in self.candidate_targets_from(co):
-                    if found:
-                        raise Exception('Ambiguous move')
-                    orig_x, orig_y = self.square_str_to_xy(co)
-                    found = True
-            if not found:
-                raise Exception('Illegal move')
+        # if we have an unambiguous origin at this point, we're good
+        if len(possible_origins) == 0:
+            raise Exception('Illegal move: no possible origins')
+        elif len(possible_origins) > 1:
+            raise Exception('Illegal move: ambiguous origin')
+        else:
+            orig_x, orig_y = self.square_str_to_xy(possible_origins.pop())
 
+        if piece == Piece.PAWN:
             # set en-passant targets if pawn moved 2
             if orig_y == 6 and targ_y == 4 and self._active_color == Color.WHITE:
                 new_en_passant_target = self.square_xy_to_str(orig_x, orig_y - 1)
             if orig_y == 1 and targ_y == 3 and self._active_color == Color.BLACK:
                 new_en_passant_target = self.square_xy_to_str(orig_x, orig_y + 1)
-
             # all pawn moves reset halfmove clock
             reset_halfmove_clock = True
-
             # promotion
-            if targ_y in (0, 7):
+            if targ_y in (0, 7) and parsed['promote'] is None:
                 # TODO implement promotion when it's actually specified
                 raise Exception('Illegal move: must promote upon advancing to final rank')
-
-        elif piece == 'R':
-            orig_x = orig_y = None
-
-            # find rook on same rank
-            for fi, sq in enumerate(self._board_array[targ_y]):
-                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
-                    orig_x, orig_y = fi, targ_y
-
-            # find rook on same file
-            for ri, sq in enumerate(tuple(zip(*self._board_array))[targ_x]):
-                if sq == ('R' if self._active_color == Color.WHITE else 'r'):
-                    orig_x, orig_y = targ_x, ri
-
-        else:
-            raise NotImplementedError('moving other pieces not implemented')
 
         # create new position
 
         new_board = [list(x) for x in self._board_array]
         # move piece
         new_board[orig_y][orig_x] = '.'
-        new_board[targ_y][targ_x] = piece.upper() if self._active_color == Color.WHITE else piece.lower()
+        new_board[targ_y][targ_x] = piece.value.upper() if self._active_color == Color.WHITE else piece.value.lower()
         # read pieces to FEN
         new_fen_pieces = self.fen_pieces_from_board_array(new_board)
         # switch color
@@ -219,9 +210,14 @@ class Position:
         """
         return frozenset(self.square_xy_to_str(*xy) for xy in self.find_pieces_xy(piece, color))
 
-    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> Tuple[str]:
-        """Current locations of pieces that can move to target."""
-        raise NotImplementedError
+    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> FrozenSet[str]:
+        """Current locations of pieces that can move to target, not taking checks into account."""
+        origins = set()
+        candidate_origins = self.find_pieces(piece, color)
+        for co in candidate_origins:
+            if target in self.candidate_targets_from(co):
+                origins.add(co)
+        return frozenset(origins)
 
     def _look_xy(self, x, y) -> str:
         """Find character occupying xy"""
@@ -367,7 +363,7 @@ class Position:
 
 
 # TODO: move most of these doctests elsewhere
-def parse_move(move_str: str):
+def parse_move(move_str: str) -> dict:
     """
     Given a move in algebraic notation, return a dict describing it.
 
@@ -464,6 +460,11 @@ def parse_move(move_str: str):
     ...
     ValueError: ...
 
+    >>> parse_move('e9') # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+    ...
+    ValueError: ...
+
     >>> parse_move('dxe8=Q') == {'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q',
     ...     'orig_rank': None, 'castle': None, 'check': False, 'checkmate': False}
     True
@@ -509,6 +510,8 @@ def parse_move(move_str: str):
         if c in '12345678':
             target_rank_index = i
             break
+    if target_rank_index is None:
+        raise ValueError('Unable to parse this one')
     d['target'] = move_str[target_rank_index-1:target_rank_index+1]
 
     before_target, after_target = move_str[:target_rank_index-1], move_str[target_rank_index+1:]

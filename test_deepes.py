@@ -128,22 +128,22 @@ def test_pawns_can_initially_advance_two():
 def test_pawn_cannot_advance_three():
     with pytest.raises(Exception) as excinfo:
         Position().move('a5')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
     with pytest.raises(Exception) as excinfo:
         Position().move('a4').move('c4')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
 
 def test_pawn_cannot_advance_two_after_advancing():
     pos = Position().move('e3').move('a6')
     with pytest.raises(Exception) as excinfo:
         pos.move('e5')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
     pos = Position().move('e3').move('a6').move('e4')
     with pytest.raises(Exception) as excinfo:
         pos.move('a4')
-    assert str(excinfo.value) == 'Illegal move'
+    assert 'Illegal move' in str(excinfo.value)
 
 
 def test_pawn_cannot_advance_into_occupied_square():
@@ -213,10 +213,13 @@ def test_rook_move_no_jump_over_piece():
     assert 'Illegal move' in str(excinfo.value)
 
 
-def test_pieces_that_can_move_here_not_implemented_lol():
-    pos = Position()
-    with pytest.raises(NotImplementedError):
-        pos.pieces_that_can_move_here(Piece.PAWN, 'e3', Color.WHITE) == ('e2',)
+def test_pieces_that_can_move_here():
+    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/1P3N2/PBPP1PPP/RN1QKB1R w KQkq - 0 5')
+    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.WHITE) == {'f3'}
+    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.BLACK) == set()
+    pos = Position('3R2R1/8/4k3/8/2r5/8/2r5/5K2 b - - 3 28')
+    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='e8', color=Color.WHITE) == {'d8', 'g8'}
+    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='c5', color=Color.BLACK) == {'c4'}
 
 
 def test_candidate_targets_empty_square():
