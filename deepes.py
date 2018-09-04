@@ -121,14 +121,16 @@ class Position:
         possible_origins = set(self.pieces_that_can_move_here(target=target, piece=piece, color=self._active_color))
 
         # if origin rank/file was specified, discard possible origins that do not match
-        if orig_x:
+        remove_origins = set()
+        if orig_x is not None:
             for po in possible_origins:
                 if self.square_str_to_xy(po)[0] != orig_x:
-                    possible_origins.remove(po)
-        if orig_y:
+                    remove_origins.add(po)
+        if orig_y is not None:
             for po in possible_origins:
                 if self.square_str_to_xy(po)[1] != orig_y:
-                    possible_origins.remove(po)
+                    remove_origins.add(po)
+        possible_origins -= remove_origins
 
         # if we have an unambiguous origin at this point, we're good
         if len(possible_origins) == 0:
@@ -151,8 +153,14 @@ class Position:
                 # TODO implement promotion when it's actually specified
                 raise Exception('Illegal move: must promote upon advancing to final rank')
 
+        # All king moves and rook moves from corners set the `remove_castling_availability` variable, regardless of
+        # whether it's already been removed. This works assuming that we haven't set up impossible positions and do not
+        # care about carrying over the impossible castling availability.
         if piece == Piece.KING:
             remove_castling_availability = 'KQ' if self._active_color == Color.WHITE else 'kq'
+        if piece == Piece.ROOK:
+            origin_effect_on_castling = dict(a1='Q', h1='K', a8='q', h8='k')
+            remove_castling_availability = origin_effect_on_castling.get(self.square_xy_to_str(orig_x, orig_y))
 
         # create new position
 
@@ -174,7 +182,7 @@ class Position:
             new_castling_availability = self._castling_availability
         else:
             new_castling_availability = ''.join(char for char in self._castling_availability
-                                                if char not in remove_castling_availability)
+                                                if char not in remove_castling_availability) or '-'
 
         # construct new FEN and create Position
         new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,

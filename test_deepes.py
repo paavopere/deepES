@@ -199,6 +199,16 @@ def test_rook_move2():
     assert pos.fen() == '8/8/1K1k3r/8/4r2R/8/8/R7 b - - 1 32'
 
 
+def test_rook_move_invalidate_castling():
+    pos = Position('rnbqkbnr/1pppppp1/8/p6p/P6P/8/1PPPPPP1/RNBQKBNR w KQkq a6 0 3')
+    pos = pos.move('Rh3')
+    assert pos.fen() == 'rnbqkbnr/1pppppp1/8/p6p/P6P/7R/1PPPPPP1/RNBQKBN1 b Qkq - 1 3'
+    pos = pos.move('Rh6')
+    assert pos.fen() == 'rnbqkbn1/1pppppp1/7r/p6p/P6P/7R/1PPPPPP1/RNBQKBN1 w Qq - 2 4'
+    pos = pos.move('Raa3').move('Raa6')  # need to specify file, too
+    assert pos.fen() == '1nbqkbn1/1pppppp1/r6r/p6p/P6P/R6R/1PPPPPP1/1NBQKBN1 w - - 4 5'
+
+
 def test_rook_move_black():
     pos = Position('rnbqkbn1/ppppppp1/7r/7p/7P/5PP1/PPPPP3/RNBQKBNR b KQq - 0 4')
     pos = pos.move('Rc6')
