@@ -234,6 +234,43 @@ def test_king_move_invalidate_castling():
     assert pos.fen() == 'rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPPKPPP/RNBQ1BNR b kq - 1 2'
 
 
+def test_knight_move():
+    pos = Position().move('Nc3').move('Nc6')
+    assert pos.fen() == 'r1bqkbnr/pppppppp/2n5/8/8/2N5/PPPPPPPP/R1BQKBNR w KQkq - 2 2'
+
+
+def test_knight_move2():
+    pos = Position('r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3') \
+        .move('Nge2')
+    assert pos.fen() == 'r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPPNPPP/R1BQKB1R b KQkq - 1 3'
+
+
+def test_knight_move3():
+    with pytest.raises(Exception) as excinfo:
+        Position('r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3') \
+            .move('Ne2')
+    assert 'ambiguous origin' in str(excinfo.value)
+
+
+@xfail
+def test_knight_capture():
+    pos = Position('r2qkbnr/pppbpppp/2n5/3p4/5N2/2N1P3/PPPP1PPP/R1BQKB1R w KQkq - 2 5') \
+        .move('Ncxd5')
+    assert pos.fen() == 'r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5'
+
+
+def test_bishop_move():
+    pos = Position('r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5')\
+        .move('Bf5').move('Ba6')
+    assert pos.fen() == 'r2qkbnr/ppp1pppp/B1n5/3N1b2/5N2/4P3/PPPP1PPP/R1BQK2R b KQkq - 2 6'
+
+
+def test_queen_move():
+    pos = Position('r2qkbnr/p1p1pppp/p3b3/3N4/3P1N2/2PQP3/PP3PPP/R1B1K2R w KQkq - 1 10')
+    assert pos.move('Qc4').fen() == 'r2qkbnr/p1p1pppp/p3b3/3N4/2QP1N2/2P1P3/PP3PPP/R1B1K2R b KQkq - 2 10'
+    assert pos.move('Qd1').fen() == 'r2qkbnr/p1p1pppp/p3b3/3N4/3P1N2/2P1P3/PP3PPP/R1BQK2R b KQkq - 2 10'
+
+
 @xfail
 def test_castling():
     pos = Position('r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQK2R w KQkq - 2 5')
@@ -339,7 +376,6 @@ def test_candidate_targets_king():
 #     assert pos.candidate_targets_from('e1') == {'e2'}
 
 # TODO: tests to write
-# - actual moves for bishops, knights and queens
 # - no moves that cause check for ourselves
 # - when checked, no moves that do not escape check
 # - checking and mating moves
