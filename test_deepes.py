@@ -98,6 +98,12 @@ def test_position_equality():
     assert position_1 == position_2
 
 
+def test_cannot_initialize_with_unexpected_active_color():
+    with pytest.raises(KeyError) as excinfo:
+        Position('rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR y KQkq a6 0 2')
+    assert 'Unexpected active color' in str(excinfo.value)
+
+
 def test_can_move():
     assert Position().move('e3')
 
@@ -123,6 +129,28 @@ def test_pawns_can_initially_advance_two():
     pos = pos.move('a5')
     expected_fen = 'rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR w KQkq a6 0 2'
     assert pos.fen() == expected_fen
+
+
+@xfail
+def test_pawn_capture():
+    pos = Position('rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2') \
+        .move('exd4')
+    assert pos.fen() == 'rnbqkbnr/pppp1ppp/8/8/3p4/4P3/PPP2PPP/RNBQKBNR w KQkq - 0 3'
+
+
+@xfail
+def test_pawn_capture_must_specify_origin():
+    pos = Position('rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('xd4')
+    assert 'Illegal move' in str(excinfo.value)
+
+
+@xfail
+def test_pawn_capture_en_passant():
+    pos = Position('rnbqkbnr/pppppp1p/6p1/6P1/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 2') \
+        .move('f5').move('gxf6')
+    assert pos.fen() == 'rnbqkbnr/ppppp2p/5Pp1/8/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 3'
 
 
 def test_pawn_cannot_advance_three():
@@ -160,12 +188,6 @@ def test_pawn_cannot_regress():
     assert 'Illegal move' in str(excinfo.value)
 
 
-def test_cannot_initialize_with_unexpected_active_color():
-    with pytest.raises(KeyError) as excinfo:
-        Position('rnbqkbnr/1ppppppp/8/p7/P7/8/1PPPPPPP/RNBQKBNR y KQkq a6 0 2')
-    assert 'Unexpected active color' in str(excinfo.value)
-
-
 def test_must_promote():
     pos = Position('3qk3/P7/8/8/8/8/7p/3QK3 w - - 0 0')
     with pytest.raises(Exception) as excinfo:
@@ -197,6 +219,14 @@ def test_rook_move2():
     pos = Position('8/8/1K1k3r/8/4r3/8/8/R6R w - - 0 32')
     pos = pos.move('Rh4')
     assert pos.fen() == '8/8/1K1k3r/8/4r2R/8/8/R7 b - - 1 32'
+
+
+def test_rook_move_ambiguous_file():
+    pos = Position('r1br2k1/2q1bppp/p4n2/2Pp4/8/B4N2/P2Q1PPP/R3R1K1 w - - 1 18')
+    pos.move('Rac1')  # this should work
+    with pytest.raises(Exception) as excinfo:
+        pos.move('Rc1')  # ambiguous origin
+    assert 'Illegal move' in str(excinfo.value)
 
 
 def test_rook_move_invalidate_castling():
@@ -376,10 +406,7 @@ def test_candidate_targets_king():
 #     assert pos.candidate_targets_from('e1') == {'e2'}
 
 # TODO: tests to write
+# - checking and mating moves
 # - no moves that cause check for ourselves
 # - when checked, no moves that do not escape check
-# - checking and mating moves
-# - en passant
-# - ambiguous origin
-# - disambiguate based on file
-# - captures
+# - advanced ambiguous cases (need to specify rank and file)
