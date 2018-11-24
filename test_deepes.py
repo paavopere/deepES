@@ -308,7 +308,7 @@ def test_castling():
     assert pos.fen() == 'r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQ1RK1 b kq - 3 5'
     pos = Position('r3kbnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 b kq - 0 6')
     pos = pos.move('O-O-O')
-    assert pos.fen('2kr1bnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 w - - 1 7')
+    assert pos.fen() == '2kr1bnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 w - - 1 7'
 
 
 @xfail
@@ -318,6 +318,16 @@ def test_castling_not_available():
     with pytest.raises(Exception) as excinfo:
         pos.move('O-O')
     assert 'Illegal move' in str(excinfo.value)
+
+
+@xfail
+def test_must_escape_check():
+    pos = Position('rnbqkbnr/ppppp1pp/8/5p1Q/8/4P3/PPPP1PPP/RNB1KBNR b KQkq - 1 2')
+    with pytest.raises(Exception) as excinfo:
+         pos.move('Nc6')  # this move does not escape the check
+    assert 'Illegal move' in str(excinfo.value)
+    pos = pos.move('g6')  # this one does
+    assert pos.fen() == 'rnbqkbnr/ppppp2p/6p1/5p1Q/8/4P3/PPPP1PPP/RNB1KBNR w KQkq - 0 3'
 
 
 def test_pieces_that_can_move_here():
@@ -408,5 +418,4 @@ def test_candidate_targets_king():
 # TODO: tests to write
 # - checking and mating moves
 # - no moves that cause check for ourselves
-# - when checked, no moves that do not escape check
 # - advanced ambiguous cases (need to specify rank and file)
