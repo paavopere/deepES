@@ -330,6 +330,7 @@ def test_check_explicitly():
     assert pos.fen() == 'rnbk1br1/pp4pp/2p5/4p1B1/4P3/8/PPP2PPP/RN2K1NR b KQ - 1 8'
 
 
+
 @xfail
 def test_check_explicitly_with_capture():
     pos = Position('rnbqkbr1/pp4pp/2p5/4p3/4P3/8/PPP2PPP/RNBQK1NR w KQq - 0 7')
@@ -338,6 +339,33 @@ def test_check_explicitly_with_capture():
     assert 'Illegal move' in str(excinfo.value)
     pos = pos.move('Qxd8+')
     assert pos.fen() == 'rnbQkbr1/pp4pp/2p5/4p3/4P3/8/PPP2PPP/RNB1K1NR b KQq - 0 7'
+
+
+@xfail
+def test_mate_explicitly_with_capture():
+    pos = Position('rn1qkbnr/pbppppp1/1p5p/7Q/2B5/4P3/PPPP1PPP/RNB1K1NR w KQkq - 2 4')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('Qf7')
+    assert 'Illegal move' in str(excinfo.value)
+    with pytest.raises(Exception) as excinfo:
+        pos.move('Qxf7')
+    assert 'Illegal move' in str(excinfo.value)
+    pos = pos.move('Qxf7#')
+    assert pos.fen() == 'rn1qkbnr/pbpppQp1/1p5p/8/2B5/4P3/PPPP1PPP/RNB1K1NR b KQkq - 0 4'
+
+
+@xfail
+def test_detect_mate():
+    pos = Position('rn1qkbnr/pbpppQp1/1p5p/8/2B5/4P3/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+    assert pos.mating_player() == Color.WHITE
+
+
+@xfail
+def test_cannot_move_after_mate():
+    pos = Position('rn1qkbnr/pbpppQp1/1p5p/8/2B5/4P3/PPPP1PPP/RNB1K1NR b KQkq - 0 4')
+    with pytest.raises(Exception) as excinfo:
+        pos.move('g6')
+    assert 'Illegal move' in str(excinfo.value)
 
 
 @xfail
@@ -436,6 +464,5 @@ def test_candidate_targets_king():
 #     assert pos.candidate_targets_from('e1') == {'e2'}
 
 # TODO: tests to write
-# - mating moves
 # - no moves that cause check for ourselves
 # - advanced ambiguous cases (need to specify rank and file)
