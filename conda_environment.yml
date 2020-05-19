@@ -1,0 +1,7 @@
+channels:
+  - defaults
+dependencies:
+  - ipykernel
+  - python
+  - pytest-cov
+
