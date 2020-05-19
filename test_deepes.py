@@ -1,6 +1,7 @@
 from textwrap import dedent
 from deepes import Position, Piece, Color
 import pytest
+
 xfail = pytest.mark.xfail
 
 STARTING_BOARD_ARRAY = (
@@ -26,7 +27,8 @@ BOARD_ARRAY_AFTER_E4 = (
 STARTING_FEN = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
 FEN_AFTER_E4 = 'rnbqkbnr/pppppppp/8/8/4P3/8/PPPP1PPP/RNBQKBNR b KQkq e3 0 1'
 FEN_AFTER_E3 = 'rnbqkbnr/pppppppp/8/8/8/4P3/PPPP1PPP/RNBQKBNR b KQkq - 0 1'
-STARTING_BBOARD = dedent('''
+STARTING_BBOARD = dedent(
+    '''
     rnbqkbnr
     pppppppp
     ........
@@ -35,8 +37,10 @@ STARTING_BBOARD = dedent('''
     ........
     PPPPPPPP
     RNBQKBNR
-''').strip()
-BBOARD_AFTER_E4 = dedent('''
+'''
+).strip()
+BBOARD_AFTER_E4 = dedent(
+    '''
     rnbqkbnr
     pppppppp
     ........
@@ -45,7 +49,8 @@ BBOARD_AFTER_E4 = dedent('''
     ........
     PPPP.PPP
     RNBQKBNR
-''').strip()
+'''
+).strip()
 
 
 def test_position_initializes():
@@ -133,8 +138,9 @@ def test_pawns_can_initially_advance_two():
 
 @xfail
 def test_pawn_capture():
-    pos = Position('rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2') \
-        .move('exd4')
+    pos = Position(
+        'rnbqkbnr/pppp1ppp/8/4p3/3P4/4P3/PPP2PPP/RNBQKBNR b KQkq - 0 2'
+    ).move('exd4')
     assert pos.fen() == 'rnbqkbnr/pppp1ppp/8/8/3p4/4P3/PPP2PPP/RNBQKBNR w KQkq - 0 3'
 
 
@@ -148,8 +154,11 @@ def test_pawn_capture_must_specify_origin():
 
 @xfail
 def test_pawn_capture_en_passant():
-    pos = Position('rnbqkbnr/pppppp1p/6p1/6P1/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 2') \
-        .move('f5').move('gxf6')
+    pos = (
+        Position('rnbqkbnr/pppppp1p/6p1/6P1/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 2')
+        .move('f5')
+        .move('gxf6')
+    )
     assert pos.fen() == 'rnbqkbnr/ppppp2p/5Pp1/8/8/8/PPPPPP1P/RNBQKBNR b KQkq - 0 3'
 
 
@@ -253,14 +262,14 @@ def test_rook_move_no_jump_over_piece():
 
 
 def test_king_move():
-    pos = Position('6kr/8/8/8/8/8/8/RK6 b - - 15 41') \
-            .move('Kf7')
+    pos = Position('6kr/8/8/8/8/8/8/RK6 b - - 15 41').move('Kf7')
     assert pos.fen() == '7r/5k2/8/8/8/8/8/RK6 w - - 16 42'
 
 
 def test_king_move_invalidate_castling():
-    pos = Position('rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2') \
-            .move('Ke2')
+    pos = Position('rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPP1PPP/RNBQKBNR w KQkq - 0 2').move(
+        'Ke2'
+    )
     assert pos.fen() == 'rnbqkbnr/pppp1ppp/4p3/8/8/4P3/PPPPKPPP/RNBQ1BNR b kq - 1 2'
 
 
@@ -270,42 +279,62 @@ def test_knight_move():
 
 
 def test_knight_move2():
-    pos = Position('r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3') \
-        .move('Nge2')
-    assert pos.fen() == 'r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPPNPPP/R1BQKB1R b KQkq - 1 3'
+    pos = Position(
+        'r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3'
+    ).move('Nge2')
+    assert (
+        pos.fen() == 'r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPPNPPP/R1BQKB1R b KQkq - 1 3'
+    )
 
 
 def test_knight_move3():
     with pytest.raises(Exception) as excinfo:
-        Position('r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3') \
-            .move('Ne2')
+        Position(
+            'r1bqkbnr/ppp1pppp/2np4/8/8/2N1P3/PPPP1PPP/R1BQKBNR w KQkq - 0 3'
+        ).move('Ne2')
     assert 'ambiguous origin' in str(excinfo.value)
 
 
 @xfail
 def test_knight_capture():
-    pos = Position('r2qkbnr/pppbpppp/2n5/3p4/5N2/2N1P3/PPPP1PPP/R1BQKB1R w KQkq - 2 5') \
-        .move('Ncxd5')
-    assert pos.fen() == 'r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5'
+    pos = Position(
+        'r2qkbnr/pppbpppp/2n5/3p4/5N2/2N1P3/PPPP1PPP/R1BQKB1R w KQkq - 2 5'
+    ).move('Ncxd5')
+    assert (
+        pos.fen() == 'r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5'
+    )
 
 
 def test_bishop_move():
-    pos = Position('r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5')\
-        .move('Bf5').move('Ba6')
-    assert pos.fen() == 'r2qkbnr/ppp1pppp/B1n5/3N1b2/5N2/4P3/PPPP1PPP/R1BQK2R b KQkq - 2 6'
+    pos = (
+        Position('r2qkbnr/pppbpppp/2n5/3N4/5N2/4P3/PPPP1PPP/R1BQKB1R b KQkq - 0 5')
+        .move('Bf5')
+        .move('Ba6')
+    )
+    assert (
+        pos.fen() == 'r2qkbnr/ppp1pppp/B1n5/3N1b2/5N2/4P3/PPPP1PPP/R1BQK2R b KQkq - 2 6'
+    )
 
 
 def test_queen_move():
     pos = Position('r2qkbnr/p1p1pppp/p3b3/3N4/3P1N2/2PQP3/PP3PPP/R1B1K2R w KQkq - 1 10')
-    assert pos.move('Qc4').fen() == 'r2qkbnr/p1p1pppp/p3b3/3N4/2QP1N2/2P1P3/PP3PPP/R1B1K2R b KQkq - 2 10'
-    assert pos.move('Qd1').fen() == 'r2qkbnr/p1p1pppp/p3b3/3N4/3P1N2/2P1P3/PP3PPP/R1BQK2R b KQkq - 2 10'
+    assert (
+        pos.move('Qc4').fen()
+        == 'r2qkbnr/p1p1pppp/p3b3/3N4/2QP1N2/2P1P3/PP3PPP/R1B1K2R b KQkq - 2 10'
+    )
+    assert (
+        pos.move('Qd1').fen()
+        == 'r2qkbnr/p1p1pppp/p3b3/3N4/3P1N2/2P1P3/PP3PPP/R1BQK2R b KQkq - 2 10'
+    )
 
 
 @xfail
 def test_castling():
     pos = Position('r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQK2R w KQkq - 2 5')
     pos = pos.move('O-O')
-    assert pos.fen() == 'r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQ1RK1 b kq - 3 5'
+    assert (
+        pos.fen() == 'r2qkbnr/pbpp1ppp/1pn5/4p3/4P3/5NP1/PPPP1PBP/RNBQ1RK1 b kq - 3 5'
+    )
     pos = Position('r3kbnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 b kq - 0 6')
     pos = pos.move('O-O-O')
     assert pos.fen() == '2kr1bnr/pbppqppp/1pn5/4p3/4P3/5NPP/PPPP1PB1/RNBQ1RK1 w - - 1 7'
@@ -330,7 +359,6 @@ def test_check_explicitly():
     assert pos.fen() == 'rnbk1br1/pp4pp/2p5/4p1B1/4P3/8/PPP2PPP/RN2K1NR b KQ - 1 8'
 
 
-
 @xfail
 def test_check_explicitly_with_capture():
     pos = Position('rnbqkbr1/pp4pp/2p5/4p3/4P3/8/PPP2PPP/RNBQK1NR w KQq - 0 7')
@@ -351,7 +379,9 @@ def test_mate_explicitly_with_capture():
         pos.move('Qxf7')
     assert 'Illegal move' in str(excinfo.value)
     pos = pos.move('Qxf7#')
-    assert pos.fen() == 'rn1qkbnr/pbpppQp1/1p5p/8/2B5/4P3/PPPP1PPP/RNB1K1NR b KQkq - 0 4'
+    assert (
+        pos.fen() == 'rn1qkbnr/pbpppQp1/1p5p/8/2B5/4P3/PPPP1PPP/RNB1K1NR b KQkq - 0 4'
+    )
 
 
 @xfail
@@ -372,19 +402,32 @@ def test_cannot_move_after_mate():
 def test_must_escape_check():
     pos = Position('rnbqkbnr/ppppp1pp/8/5p1Q/8/4P3/PPPP1PPP/RNB1KBNR b KQkq - 1 2')
     with pytest.raises(Exception) as excinfo:
-         pos.move('Nc6')  # this move does not escape the check
+        pos.move('Nc6')  # this move does not escape the check
     assert 'Illegal move' in str(excinfo.value)
     pos = pos.move('g6')  # this one does
     assert pos.fen() == 'rnbqkbnr/ppppp2p/6p1/5p1Q/8/4P3/PPPP1PPP/RNB1KBNR w KQkq - 0 3'
 
 
 def test_pieces_that_can_move_here():
-    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/1P3N2/PBPP1PPP/RN1QKB1R w KQkq - 0 5')
-    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.WHITE) == {'f3'}
-    assert pos.pieces_that_can_move_here(piece=Piece.KNIGHT, target='e5', color=Color.BLACK) == set()
+    pos = Position(
+        'r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/1P3N2/PBPP1PPP/RN1QKB1R w KQkq - 0 5'
+    )
+    assert pos.pieces_that_can_move_here(
+        piece=Piece.KNIGHT, target='e5', color=Color.WHITE
+    ) == {'f3'}
+    assert (
+        pos.pieces_that_can_move_here(
+            piece=Piece.KNIGHT, target='e5', color=Color.BLACK
+        )
+        == set()
+    )
     pos = Position('3R2R1/8/4k3/8/2r5/8/2r5/5K2 b - - 3 28')
-    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='e8', color=Color.WHITE) == {'d8', 'g8'}
-    assert pos.pieces_that_can_move_here(piece=Piece.ROOK, target='c5', color=Color.BLACK) == {'c4'}
+    assert pos.pieces_that_can_move_here(
+        piece=Piece.ROOK, target='e8', color=Color.WHITE
+    ) == {'d8', 'g8'}
+    assert pos.pieces_that_can_move_here(
+        piece=Piece.ROOK, target='c5', color=Color.BLACK
+    ) == {'c4'}
 
 
 def test_candidate_targets_empty_square():
@@ -399,7 +442,9 @@ def test_candidate_targets_initial_pawns():
 
 
 def test_candidate_targets_capturing_pawns():
-    pos = Position('rn2kbn1/1ppb2p1/p7/1B1pppqp/2rPPPQP/1P6/P1P3PR/RNB1K1N1 w Qq - 6 11')
+    pos = Position(
+        'rn2kbn1/1ppb2p1/p7/1B1pppqp/2rPPPQP/1P6/P1P3PR/RNB1K1N1 w Qq - 6 11'
+    )
     assert pos.candidate_targets_from('b3') == {'b4', 'c4'}
     assert pos.candidate_targets_from('h5') == {'g4'}
     assert pos.candidate_targets_from('e4') == {'d5', 'f5'}
@@ -417,7 +462,9 @@ def test_candidate_targets_initial_knights():
 
 
 def test_candidate_targets_knight_capture():
-    pos = Position('r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 5')
+    pos = Position(
+        'r1bqkb1r/ppp2ppp/2np1n2/4p3/4P3/2NP1N2/PPP2PPP/R1BQKB1R w KQkq - 0 5'
+    )
     assert pos.candidate_targets_from('f6') == {'g8', 'h5', 'g4', 'e4', 'd5', 'd7'}
     assert pos.candidate_targets_from('f3') == {'g1', 'h4', 'g5', 'e5', 'd4', 'd2'}
 
@@ -437,18 +484,54 @@ def test_candidate_targets_initial_blocked_pieces():
 def test_candidate_targets_bishop():
     pos = Position('rnbqkbnr/pppppp1p/8/6p1/8/3PB3/PPP1PPPP/RN1QKBNR b KQkq - 1 2')
     assert pos.candidate_targets_from('f8') == {'g7', 'h6'}
-    assert pos.candidate_targets_from('e3') == {'c1', 'd2', 'f4', 'g5', 'd4', 'c5', 'b6', 'a7'}
+    assert pos.candidate_targets_from('e3') == {
+        'c1',
+        'd2',
+        'f4',
+        'g5',
+        'd4',
+        'c5',
+        'b6',
+        'a7',
+    }
 
 
 def test_candidate_targets_rook():
     pos = Position('rnbqkbn1/1ppppp2/pB4r1/6Pp/8/3P3R/PPP1PPP1/RN1QKBN1 b Qq - 0 6')
-    assert pos.candidate_targets_from('h3') == {'h1', 'h2', 'h4', 'h5', 'e3', 'f3', 'g3'}
-    assert pos.candidate_targets_from('g6') == {'g7', 'g5', 'b6', 'c6', 'd6', 'e6', 'f6', 'h6'}
+    assert pos.candidate_targets_from('h3') == {
+        'h1',
+        'h2',
+        'h4',
+        'h5',
+        'e3',
+        'f3',
+        'g3',
+    }
+    assert pos.candidate_targets_from('g6') == {
+        'g7',
+        'g5',
+        'b6',
+        'c6',
+        'd6',
+        'e6',
+        'f6',
+        'h6',
+    }
 
 
 def test_candidate_targets_queen():
     pos = Position('rnbq1bn1/1ppp1p2/pB2k1r1/4p1Pp/2P5/2QP3R/PP2PPP1/RN2KBN1 b Q - 4 9')
-    assert pos.candidate_targets_from('c3') == {'c1', 'c2', 'a3', 'b3', 'a5', 'b4', 'd4', 'e5', 'd2'}
+    assert pos.candidate_targets_from('c3') == {
+        'c1',
+        'c2',
+        'a3',
+        'b3',
+        'a5',
+        'b4',
+        'd4',
+        'e5',
+        'd2',
+    }
 
 
 def test_candidate_targets_king():

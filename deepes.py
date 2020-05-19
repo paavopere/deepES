@@ -1,6 +1,6 @@
 from itertools import product
 from enum import Enum
-from typing import Tuple, Optional, Set, FrozenSet
+from typing import Optional, FrozenSet
 
 
 class Piece(Enum):
@@ -85,9 +85,14 @@ class Position:
 
     def fen(self):
         """Forsyth-Edwards notation string of the position"""
-        return '{} {} {} {} {} {}'.format(self.fen_pieces_from_board_array(self._board_array), self._active_color.value,
-                                          self._castling_availability, self._en_passant_target, self._halfmove_clock,
-                                          self._fullmove_number)
+        return '{} {} {} {} {} {}'.format(
+            self.fen_pieces_from_board_array(self._board_array),
+            self._active_color.value,
+            self._castling_availability,
+            self._en_passant_target,
+            self._halfmove_clock,
+            self._fullmove_number,
+        )
 
     def move(self, move_str):
         new_en_passant_target = None
@@ -118,7 +123,11 @@ class Position:
             if not self._empty_xy(targ_x, targ_y):
                 raise Exception('Illegal move: target occupied')
 
-        possible_origins = set(self.pieces_that_can_move_here(target=target, piece=piece, color=self._active_color))
+        possible_origins = set(
+            self.pieces_that_can_move_here(
+                target=target, piece=piece, color=self._active_color
+            )
+        )
 
         # if origin rank/file was specified, discard possible origins that do not match
         remove_origins = set()
@@ -151,23 +160,34 @@ class Position:
             # promotion
             if targ_y in (0, 7) and parsed['promote'] is None:
                 # TODO implement promotion when it's actually specified
-                raise Exception('Illegal move: must promote upon advancing to final rank')
+                raise Exception(
+                    'Illegal move: must promote upon advancing to final rank'
+                )
 
-        # All king moves and rook moves from corners set the `remove_castling_availability` variable, regardless of
-        # whether it's already been removed. This works assuming that we haven't set up impossible positions and do not
-        # care about carrying over the impossible castling availability.
+        # All king moves and rook moves from corners set the `remove_castling_availability`
+        # variable, regardless of whether it's already been removed. This works assuming that we
+        # haven't set up impossible positions and do not care about carrying over the impossible
+        # castling availability.
         if piece == Piece.KING:
-            remove_castling_availability = 'KQ' if self._active_color == Color.WHITE else 'kq'
+            remove_castling_availability = (
+                'KQ' if self._active_color == Color.WHITE else 'kq'
+            )
         if piece == Piece.ROOK:
             origin_effect_on_castling = dict(a1='Q', h1='K', a8='q', h8='k')
-            remove_castling_availability = origin_effect_on_castling.get(self.square_xy_to_str(orig_x, orig_y))
+            remove_castling_availability = origin_effect_on_castling.get(
+                self.square_xy_to_str(orig_x, orig_y)
+            )
 
         # create new position
 
         new_board = [list(x) for x in self._board_array]
         # move piece
         new_board[orig_y][orig_x] = '.'
-        new_board[targ_y][targ_x] = piece.value.upper() if self._active_color == Color.WHITE else piece.value.lower()
+        new_board[targ_y][targ_x] = (
+            piece.value.upper()
+            if self._active_color == Color.WHITE
+            else piece.value.lower()
+        )
         # read pieces to FEN
         new_fen_pieces = self.fen_pieces_from_board_array(new_board)
         # switch color
@@ -176,17 +196,33 @@ class Position:
         new_en_passant_target = new_en_passant_target or '-'
         # increment numbers
         new_halfmove_clock = 0 if reset_halfmove_clock else self._halfmove_clock + 1
-        new_fullmove_number = self._fullmove_number if self._active_color == Color.WHITE else self._fullmove_number + 1
+        new_fullmove_number = (
+            self._fullmove_number
+            if self._active_color == Color.WHITE
+            else self._fullmove_number + 1
+        )
 
         if not remove_castling_availability:
             new_castling_availability = self._castling_availability
         else:
-            new_castling_availability = ''.join(char for char in self._castling_availability
-                                                if char not in remove_castling_availability) or '-'
+            new_castling_availability = (
+                ''.join(
+                    char
+                    for char in self._castling_availability
+                    if char not in remove_castling_availability
+                )
+                or '-'
+            )
 
         # construct new FEN and create Position
-        new_fen = '{} {} {} {} {} {}'.format(new_fen_pieces, new_active_color, new_castling_availability,
-                                             new_en_passant_target, new_halfmove_clock, new_fullmove_number)
+        new_fen = '{} {} {} {} {} {}'.format(
+            new_fen_pieces,
+            new_active_color,
+            new_castling_availability,
+            new_en_passant_target,
+            new_halfmove_clock,
+            new_fullmove_number,
+        )
         return Position(fen=new_fen)
 
     @staticmethod
@@ -195,7 +231,10 @@ class Position:
         >>> Position.square_str_to_xy('a1')
         (0, 7)
         """
-        return list('abcdefgh').index(square_str[0]), list('87654321').index(square_str[1])
+        return (
+            list('abcdefgh').index(square_str[0]),
+            list('87654321').index(square_str[1]),
+        )
 
     @staticmethod
     def square_xy_to_str(x, y):
@@ -212,17 +251,26 @@ class Position:
         True
         """
         char = piece.value.upper() if color == Color.WHITE else piece.value.lower()
-        return frozenset((x, y) for x in range(8) for y in range(8) if self._board_array[y][x] == char)
+        return frozenset(
+            (x, y)
+            for x in range(8)
+            for y in range(8)
+            if self._board_array[y][x] == char
+        )
 
-    def find_pieces(self, piece: Piece, color: Color) -> FrozenSet[tuple]:
+    def find_pieces(self, piece: Piece, color: Color) -> FrozenSet[str]:
         """
         >>> ps = Position().find_pieces(Piece.BISHOP, Color.WHITE)
         >>> ps == {'c1', 'f1'}
         True
         """
-        return frozenset(self.square_xy_to_str(*xy) for xy in self.find_pieces_xy(piece, color))
+        return frozenset(
+            self.square_xy_to_str(*xy) for xy in self.find_pieces_xy(piece, color)
+        )
 
-    def pieces_that_can_move_here(self, piece: Piece, target: str, color: Color) -> FrozenSet[str]:
+    def pieces_that_can_move_here(
+        self, piece: Piece, target: str, color: Color
+    ) -> FrozenSet[str]:
         """Current locations of pieces that can move to target, not taking checks into account."""
         origins = set()
         candidate_origins = self.find_pieces(piece, color)
@@ -250,10 +298,11 @@ class Position:
 
     def candidate_targets_from(self, origin: str) -> Optional[FrozenSet[str]]:
         """
-        Return candidate targets for the piece in the given square.
-        "Candidate targets" meaning squares where the piece could move if we do not take into account checks.
+        Return candidate targets for the piece in the given square. "Candidate targets" meaning
+        squares where the piece could move if we do not take into account checks.
 
-        Empty origin square returns None, and a non-empty square with no targets returns an empty frozenset.
+        Empty origin square returns None, and a non-empty square with no targets returns an
+        empty frozenset.
         """
         char = self._look_sq(origin)
         if char == '.':
@@ -281,28 +330,34 @@ class Position:
             dy = -1 if color == Color.WHITE else 1
 
             # moves straight ahead
-            if self._empty_xy(x, y+dy):
-                candidates.add(self.square_xy_to_str(x, y+dy))
-                if y == start_y and self._empty_xy(x, y+2*dy):  # rank 2
-                    candidates.add(self.square_xy_to_str(x, y+2*dy))
+            if self._empty_xy(x, y + dy):
+                candidates.add(self.square_xy_to_str(x, y + dy))
+                if y == start_y and self._empty_xy(x, y + 2 * dy):  # rank 2
+                    candidates.add(self.square_xy_to_str(x, y + 2 * dy))
 
             # capturing moves
-            for pxy in ((x-1, y+dy), (x+1, y+dy)):
+            for pxy in ((x - 1, y + dy), (x + 1, y + dy)):
                 if self._xy_on_board(*pxy):
                     if self._look_xy(*pxy).islower() and color == Color.WHITE:
                         candidates.add(self.square_xy_to_str(*pxy))
                     if self._look_xy(*pxy).isupper() and color == Color.BLACK:
                         candidates.add(self.square_xy_to_str(*pxy))
 
-                if self._en_passant_target != '-' and pxy == self.square_str_to_xy(self._en_passant_target):
+                if self._en_passant_target != '-' and pxy == self.square_str_to_xy(
+                    self._en_passant_target
+                ):
                     candidates.add(self._en_passant_target)
 
         elif piece_type == Piece.KNIGHT:
             possible_xys = (
-                (x+1, y+2), (x+1, y-2),
-                (x+2, y+1), (x+2, y-1),
-                (x-1, y+2), (x-1, y-2),
-                (x-2, y+1), (x-2, y-1)
+                (x + 1, y + 2),
+                (x + 1, y - 2),
+                (x + 2, y + 1),
+                (x + 2, y - 1),
+                (x - 1, y + 2),
+                (x - 1, y - 2),
+                (x - 2, y + 1),
+                (x - 2, y - 1),
             )
             for pxy in possible_xys:
                 if not self._xy_on_board(*pxy):
@@ -310,50 +365,72 @@ class Position:
                 if self._empty_xy(*pxy):
                     candidates.add(self.square_xy_to_str(*pxy))
                 # capturing moves
-                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                        or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) or (
+                    self._look_xy(*pxy).isupper() and color == Color.BLACK
+                ):
                     candidates.add(self.square_xy_to_str(*pxy))
 
         elif piece_type == Piece.BISHOP:
-            for direction_displacement_seq in diagonal_pos_pos, diagonal_pos_neg, diagonal_neg_pos, diagonal_neg_neg:
+            for direction_displacement_seq in (
+                diagonal_pos_pos,
+                diagonal_pos_neg,
+                diagonal_neg_pos,
+                diagonal_neg_neg,
+            ):
                 for dx, dy in direction_displacement_seq:
-                    pxy = x+dx, y+dy
+                    pxy = x + dx, y + dy
                     if not self._xy_on_board(*pxy):
                         break
                     if self._empty_xy(*pxy):
                         candidates.add(self.square_xy_to_str(*pxy))
                     else:
-                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) or (
+                            self._look_xy(*pxy).isupper() and color == Color.BLACK
+                        ):
                             candidates.add(self.square_xy_to_str(*pxy))
                         break
 
         elif piece_type == Piece.ROOK:
-            for direction_displacement_seq in horizontal_pos, horizontal_neg, vertical_pos, vertical_neg:
+            for direction_displacement_seq in (
+                horizontal_pos,
+                horizontal_neg,
+                vertical_pos,
+                vertical_neg,
+            ):
                 for dx, dy in direction_displacement_seq:
-                    pxy = x+dx, y+dy
+                    pxy = x + dx, y + dy
                     if not self._xy_on_board(*pxy):
                         break
                     if self._empty_xy(*pxy):
                         candidates.add(self.square_xy_to_str(*pxy))
                     else:
-                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) or (
+                            self._look_xy(*pxy).isupper() and color == Color.BLACK
+                        ):
                             candidates.add(self.square_xy_to_str(*pxy))
                         break
 
         elif piece_type == Piece.QUEEN:
-            for direction_displacement_seq in horizontal_pos, horizontal_neg, vertical_pos, vertical_neg, \
-                                              diagonal_pos_pos, diagonal_pos_neg, diagonal_neg_pos, diagonal_neg_neg:
+            for direction_displacement_seq in (
+                horizontal_pos,
+                horizontal_neg,
+                vertical_pos,
+                vertical_neg,
+                diagonal_pos_pos,
+                diagonal_pos_neg,
+                diagonal_neg_pos,
+                diagonal_neg_neg,
+            ):
                 for dx, dy in direction_displacement_seq:
-                    pxy = x+dx, y+dy
+                    pxy = x + dx, y + dy
                     if not self._xy_on_board(*pxy):
                         break
                     if self._empty_xy(*pxy):
                         candidates.add(self.square_xy_to_str(*pxy))
                     else:
-                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                                or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                        if (self._look_xy(*pxy).islower() and color == Color.WHITE) or (
+                            self._look_xy(*pxy).isupper() and color == Color.BLACK
+                        ):
                             candidates.add(self.square_xy_to_str(*pxy))
                         break
 
@@ -361,14 +438,15 @@ class Position:
             displacements = set(product((-1, 0, 1), repeat=2))
             displacements.remove((0, 0))
             for dx, dy in displacements:
-                pxy = x+dx, y+dy
+                pxy = x + dx, y + dy
                 if not self._xy_on_board(*pxy):
                     continue
                 if self._empty_xy(*pxy):
                     candidates.add(self.square_xy_to_str(*pxy))
                 # capturing moves
-                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) \
-                        or (self._look_xy(*pxy).isupper() and color == Color.BLACK):
+                elif (self._look_xy(*pxy).islower() and color == Color.WHITE) or (
+                    self._look_xy(*pxy).isupper() and color == Color.BLACK
+                ):
                     candidates.add(self.square_xy_to_str(*pxy))
 
         return frozenset(candidates)
@@ -381,7 +459,8 @@ def parse_move(move_str: str) -> dict:
 
     >>> parse_move('Qe5') == {
     ...     'piece': 'Q', 'target': 'e5',
-    ...     'orig_rank': None, 'orig_file': None, 'capture': False, 'castle': None, 'check': False, 'checkmate': False,
+    ...     'orig_rank': None, 'orig_file': None, 'capture': False,
+    ...     'castle': None, 'check': False, 'checkmate': False,
     ...     'promote': None
     ... }
     True
@@ -402,12 +481,14 @@ def parse_move(move_str: str) -> dict:
     ValueError: ...
 
     >>> parse_move('dxe8=Q+') == {
-    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8', 'promote': 'Q', 'check': True,
+    ...     'piece': 'P', 'orig_file': 'd', 'capture': True, 'target': 'e8',
+    ...     'promote': 'Q', 'check': True,
     ...     'orig_rank': None, 'castle': None, 'checkmate': False}
     True
 
     >>> m = parse_move('Be3xd4+')
-    >>> m['piece'], m['orig_file'], m['orig_rank'], m['capture'], m['target'], m['check']
+    >>> (m['piece'], m['orig_file'], m['orig_rank'], m['capture'],
+    ...  m['target'], m['check'])
     ('B', 'e', '3', True, 'd4', True)
 
     >>> parse_move('e3#')['checkmate']
@@ -438,12 +519,16 @@ def parse_move(move_str: str) -> dict:
     ...
     ValueError: ...
 
-    >>> parse_move('R4xe5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': True,
-    ...     'orig_file': None, 'check': False, 'checkmate': False, 'promote': None, 'castle': None}
+    >>> parse_move('R4xe5') == {
+    ...     'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': True,
+    ...     'orig_file': None, 'check': False, 'checkmate': False,
+    ...     'promote': None, 'castle': None }
     True
 
-    >>> parse_move('R4e5') == {'piece': 'R', 'target': 'e5', 'orig_rank': '4',
-    ...     'capture': False, 'orig_file': None, 'check': False, 'checkmate': False, 'promote': None, 'castle': None}
+    >>> parse_move('R4e5') == {
+    ...     'piece': 'R', 'target': 'e5', 'orig_rank': '4', 'capture': False,
+    ...     'orig_file': None, 'check': False, 'checkmate': False,
+    ...     'promote': None, 'castle': None}
     True
 
     >>> parse_move('Rae5')['orig_file']
@@ -482,8 +567,17 @@ def parse_move(move_str: str) -> dict:
     True
     """
 
-    d = dict(piece=None, orig_rank=None, orig_file=None, capture=False,
-             target=None, castle=None, check=False, checkmate=False, promote=None)
+    d = dict(
+        piece=None,
+        orig_rank=None,
+        orig_file=None,
+        capture=False,
+        target=None,
+        castle=None,
+        check=False,
+        checkmate=False,
+        promote=None,
+    )
 
     # let's make sure you don't pass lists or something stupid here
     if not isinstance(move_str, str):
@@ -524,9 +618,12 @@ def parse_move(move_str: str) -> dict:
             break
     if target_rank_index is None:
         raise ValueError('Unable to parse this one')
-    d['target'] = move_str[target_rank_index-1:target_rank_index+1]
+    d['target'] = move_str[target_rank_index - 1 : target_rank_index + 1]
 
-    before_target, after_target = move_str[:target_rank_index-1], move_str[target_rank_index+1:]
+    before_target, after_target = (
+        move_str[: target_rank_index - 1],
+        move_str[target_rank_index + 1 :],
+    )
 
     # disambiguating origin before target
     if before_target == '':

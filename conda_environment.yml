@@ -4,4 +4,5 @@ dependencies:
   - ipykernel
   - python
   - pytest-cov
+  - black
 
